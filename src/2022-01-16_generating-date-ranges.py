@@ -21,6 +21,10 @@ pd.date_range("2014-10-10", "2016-01-07", freq="MS").strftime("%m").tolist()
 
 pd.date_range("2014-10-10", "2016-01-07", freq="MS").strftime("%b").tolist()
 
+# Quarters, e.g. '01' to '04
+
+pd.date_range("2014-10-10", "2016-01-07", freq="MS").quarter.tolist()
+
 
 # # Example
 
