@@ -42,10 +42,24 @@ forecaster.fit(y)
 y_pred = forecaster.predict(fh=[x for x in range(1, 11)])
 y_pred.head()
 
+# The forcaster object retains the cutoff date:
+
+forecaster.cutoff
+
+# Combining actuals and fitted values:
+
+y_actual_and_fitted = pd.DataFrame(
+    {"y": y, "y_fitted": forecaster._f[1:]}, index=y.index
+)
+
+y_forecast = pd.concat([y_actual_and_fitted, y_pred])
+y_forecast = y_forecast.rename(columns={0: "y_predicted"})
+
 fig, ax = plt.subplots()
-y.plot(ax=ax)
-y_pred.plot(ax=ax)
-ax.set_title("Example 1 of forecast using Croston's method")
+y_forecast.plot(ax=ax)
+ax.set_title(
+    "Example 1 of forecast using Croston's method \nPharmaceutical Benefit Scheme univariate time series dataset"  # noqa
+)  # noqa
 fig.show()
 
 
