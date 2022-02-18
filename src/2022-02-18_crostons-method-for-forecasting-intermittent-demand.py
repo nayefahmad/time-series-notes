@@ -26,6 +26,7 @@
 from sktime.forecasting.croston import Croston
 from sktime.datasets import load_PBS_dataset
 import pandas as pd
+import numpy as np
 import matplotlib.pyplot as plt
 from IPython.core.interactiveshell import InteractiveShell
 
@@ -50,6 +51,8 @@ fig.show()
 
 # ## Example 2
 
+# This is adapted from the sktime docs.
+
 y = pd.Series([0] * 30 + [2, 2, 0, 0, 0], name="series1")
 
 fig = plt.figure(figsize=(20, 15))
@@ -69,3 +72,33 @@ for n, smooth_value in enumerate([10, 1.5, 1, 0.5, 0.1, 0.01]):
 fig.tight_layout()
 fig.show()
 # fig.savefig('alpha-values.pdf')
+
+
+# ## Example 3
+
+# This is a slight modification of Example 2, with fewer zero values.
+
+y = pd.Series(
+    [0] * 10
+    + np.random.choice(a=[0, 1, 2], size=35, p=[0.5, 0.1, 0.4]).tolist()
+    + [2, 2, 0, 0, 0],
+    name="series1",
+)
+
+fig = plt.figure(figsize=(20, 15))
+for n, smooth_value in enumerate([10, 1.5, 1, 0.5, 0.1, 0.01]):
+    forecaster = Croston(smoothing=smooth_value)
+    forecaster.fit(y)
+    y_pred = forecaster.predict(fh=[x for x in range(1, 11)])
+    y_pred.head()
+
+    ax = plt.subplot(6, 1, n + 1)
+    y.plot(ax=ax)
+    y_pred.plot(ax=ax)
+    ax.set_title(
+        f"Example 2 of forecast using Croston's method \nAlpha = {smooth_value}"  # noqa
+    )
+    # ax.set_ylim(0, 10)
+fig.tight_layout()
+fig.show()
+# fig.savefig('alpha-values2.pdf')
