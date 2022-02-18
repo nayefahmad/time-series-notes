@@ -67,6 +67,10 @@ fig.show()
 
 # This is adapted from the sktime docs.
 
+# Here we can see that alpha values between 0 and 1.0 seem sensible.
+# The larger the value of alpha, the more our fit weights recent
+# data points.
+
 y = pd.Series([0] * 30 + [2, 2, 0, 0, 0], name="series1")
 
 fig = plt.figure(figsize=(20, 15))
@@ -76,16 +80,20 @@ for n, smooth_value in enumerate([10, 1.5, 1, 0.5, 0.1, 0.01]):
     y_pred = forecaster.predict(fh=[x for x in range(1, 11)])
     y_pred.head()
 
+    df_fitted = pd.DataFrame(
+        {"y": y, "y_fitted": forecaster._f[1:]}, index=y.index
+    )  # noqa
+    df_pred = pd.concat([df_fitted, y_pred])
+    df_pred = df_pred.rename(columns={0: "y_predicted"})
+
     ax = plt.subplot(6, 1, n + 1)
-    y.plot(ax=ax)
-    y_pred.plot(ax=ax)
+    df_pred.plot(ax=ax)
     ax.set_title(
         f"Example 2 of forecast using Croston's method \nAlpha = {smooth_value}"  # noqa
     )
-    # ax.set_ylim(0, 10)
 fig.tight_layout()
 fig.show()
-# fig.savefig('alpha-values.pdf')
+# fig.savefig('dst/alpha-values.pdf')
 
 
 # ## Example 3
@@ -106,13 +114,18 @@ for n, smooth_value in enumerate([10, 1.5, 1, 0.5, 0.1, 0.01]):
     y_pred = forecaster.predict(fh=[x for x in range(1, 11)])
     y_pred.head()
 
+    df_fitted = pd.DataFrame(
+        {"y": y, "y_fitted": forecaster._f[1:]}, index=y.index
+    )  # noqa
+    df_pred = pd.concat([df_fitted, y_pred])
+    df_pred = df_pred.rename(columns={0: "y_predicted"})
+
     ax = plt.subplot(6, 1, n + 1)
-    y.plot(ax=ax)
-    y_pred.plot(ax=ax)
+    df_pred.plot(ax=ax)
     ax.set_title(
         f"Example 2 of forecast using Croston's method \nAlpha = {smooth_value}"  # noqa
     )
     # ax.set_ylim(0, 10)
 fig.tight_layout()
 fig.show()
-# fig.savefig('alpha-values2.pdf')
+# fig.savefig('dst/alpha-values2.pdf')
