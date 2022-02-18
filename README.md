@@ -14,4 +14,4 @@ Notes on time series and forecasting methods
 
 ## Contents 
 1. [Generating date ranges in pandas](https://github.com/nayefahmad/time-series-notes/blob/main/src/2022-01-16_generating-date-ranges.ipynb)   
-
+2. [Croston's method for forecasting intermittent demand](https://github.com/nayefahmad/time-series-notes/blob/main/src/2022-02-18_crostons-method-for-forecasting-intermittent-demand.ipynb)
