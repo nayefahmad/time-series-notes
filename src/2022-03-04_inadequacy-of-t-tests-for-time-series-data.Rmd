@@ -13,3 +13,6 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 # Overview 
+
+Reference: 
+- [Speegle & Clair, Section 8.5.4](https://mathstat.slu.edu/~speegle/_book/HTCI.html)
