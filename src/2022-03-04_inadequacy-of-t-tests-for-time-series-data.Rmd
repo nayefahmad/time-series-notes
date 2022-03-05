@@ -1,0 +1,15 @@
+---
+title: "Inadequacy of t-tests for time series data"
+author: "Nayef Ahmad"
+date: "2022-03-04" 
+output: 
+   github_document: 
+     toc: true
+     number_sections: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Overview 
