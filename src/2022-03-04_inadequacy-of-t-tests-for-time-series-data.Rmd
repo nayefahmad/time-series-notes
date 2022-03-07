@@ -14,6 +14,8 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # Overview 
 
+It's commonly known that violation of the independence assumption is a problem for the t-test. One common specific way in which this violation can occur is when there is dependence across time/sequence for a set of data. Here we show that this can lead to serious inflation of the Type 1 error rate. 
+
 Reference: 
 
 - [Speegle & Clair, Section 8.5.4](https://mathstat.slu.edu/~speegle/_book/HTCI.html)
@@ -52,7 +54,7 @@ To get a better sense of the performance of the t-test here, let's simulate a la
 alpha <- 0.05
 
 sim_data <- replicate(10000, {
-  x <- arima.sim(model = list(ar = .5), n = 100)
+  x <- arima.sim(model = list(ar = .5), n = 200)
   t.test(x, mu = 0)$p.value
   
 })
