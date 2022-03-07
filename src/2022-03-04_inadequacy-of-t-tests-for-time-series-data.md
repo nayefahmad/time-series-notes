@@ -12,6 +12,12 @@ Nayef Ahmad
 
 # 1 Overview
 
+It’s commonly known that violation of the independence assumption is a
+problem for the t-test. One common specific way in which this violation
+can occur is when there is dependence across time/sequence for a set of
+data. Here we show that this can lead to serious inflation of the Type 1
+error rate.
+
 Reference:
 
 -   [Speegle & Clair, Section
@@ -34,7 +40,7 @@ Here we have an `AR(1)` model with no “intercept” or starting term. By
 definition, it is weakly stationary, with mean equal to zero. That is,
 *μ* = 0.
 
-The sample mean here is 0.1280255.
+The sample mean here is -0.1375744.
 
 We can do a t-test to assess the null hypothesis
 *H*<sub>0</sub> : *μ* = 0 vs alternative hypothesis
@@ -47,7 +53,7 @@ alpha <- .05
 reject_null <- t_test_p_value < alpha
 ```
 
-The t-test gives a p-value of 0.2163467, which in this case means
+The t-test gives a p-value of 0.2160367, which in this case means
 `reject_null` = FALSE.
 
 # 3 Simulation of a large number of t-tests
@@ -60,7 +66,7 @@ wrongly rejected.
 alpha <- 0.05
 
 sim_data <- replicate(10000, {
-  x <- arima.sim(model = list(ar = .5), n = 100)
+  x <- arima.sim(model = list(ar = .5), n = 200)
   t.test(x, mu = 0)$p.value
   
 })
@@ -71,7 +77,7 @@ prop_false_rejection <- mean(sim_data < alpha)
 The Type 1 error rate is the proportion of time the p-value is less than
 `alpha` under the null hypothesis.
 
-**Here, the value of the Type 1 error rate is 0.2555. This is much
+**Here, the value of the Type 1 error rate is 0.2552. This is much
 higher than `alpha`, which is the “advertised” Type 1 error rate.**
 
 # 4 Comparison using normally distributed data
@@ -86,4 +92,4 @@ sim_data <- replicate(10000, {
 prop_false_rejection_normal <- mean(sim_data < .05)
 ```
 
-Here the t-test performs well. The Type 1 error rate is 0.0506
+Here the t-test performs well. The Type 1 error rate is 0.0507
