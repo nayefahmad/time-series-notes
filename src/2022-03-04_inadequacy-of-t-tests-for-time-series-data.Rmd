@@ -21,11 +21,21 @@ Reference:
 - [Speegle & Clair, Section 8.5.4](https://mathstat.slu.edu/~speegle/_book/HTCI.html)
 
 
+# Libraries 
+```{r}
+library(forecast)
+
+```
+
+
 # Single t-test
 
 ```{r}
 time_series <- arima.sim(model = list(ar = .5), n = 100)
 plot(time_series)
+acf(time_series)
+pacf(time_series)
+
 sample_mean <- mean(time_series)
 
 ```
@@ -81,3 +91,61 @@ prop_false_rejection_normal <- mean(sim_data < .05)
 
 Here the t-test performs well. The Type 1 error rate is `r prop_false_rejection_normal`
 
+
+# Working with residuals from fitted ARIMA model 
+
+We can use `auto.arima()` to fit an ARIMA model that accounts for the time series structure in our data. If the model accounts for most of the structure, then the residuals should be close to white noise - that is, independent and identically distributed. Thus, the t-test should work well on the residuals. 
+
+```{r}
+time_series <- arima.sim(model = list(ar = .5), n = 200)
+model <- auto.arima(time_series, stepwise = FALSE, approximation = FALSE)
+
+plot(time_series)
+lines(model$fitted, col = "blue")
+
+if (is.na(model$coef["intercept"])){
+  intercept <- 0
+} else {
+  intercept <- model$coef["intercept"]
+}
+
+shifted_residuals <- model$residuals + intercept
+hist(shifted_residuals)
+
+alpha <- 0.05
+t_test_p_value <- t.test(shifted_residuals, mu = 0)$p.value
+reject_null <- t_test_p_value < alpha
+```
+
+In this case, the p-value is `r t_test_p_value`, and `reject_null` is `r reject_null`
+
+
+## Simulation over many iterations 
+
+Let's repeat the experiment over a large number of iterations. 
+
+```{r}
+alpha <- 0.05
+
+sim_data <- replicate(1000, {
+  x <- arima.sim(model = list(ar = .5), n = 200)
+  
+  model <- auto.arima(x, stepwise = TRUE, approximation = TRUE)
+  
+  if (is.na(model$coef["intercept"])){
+    intercept <- 0
+  } else {
+    intercept <- model$coef["intercept"]
+  }
+  
+  shifted_residuals <- model$residuals + intercept
+  
+  t.test(shifted_residuals, mu = 0)$p.value
+  
+})
+
+prop_false_rejection <- mean(sim_data < alpha)
+
+```
+
+**The Type 1 error rate after removing some time series structure is `r prop_false_rejection`. Although this is still inflated, it is an improvement over the uncorrected t-test result.** 
