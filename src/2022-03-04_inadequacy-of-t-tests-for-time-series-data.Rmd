@@ -16,6 +16,8 @@ knitr::opts_chunk$set(echo = TRUE)
 
 It's commonly known that violation of the independence assumption is a problem for the t-test. One common specific way in which this violation can occur is when there is dependence across time/sequence for a set of data. Here we show that this can lead to serious inflation of the Type 1 error rate. 
 
+- todo: show that the Type 1 error inflation is worse when the AR coefficient is higher. 
+
 Reference: 
 
 - [Speegle & Clair, Section 8.5.4](https://mathstat.slu.edu/~speegle/_book/HTCI.html)
