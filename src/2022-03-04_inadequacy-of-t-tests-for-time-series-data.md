@@ -4,6 +4,11 @@ Nayef Ahmad
 2022-03-04
 
 -   [1 Overview](#overview)
+-   [2 Single t-test](#single-t-test)
+-   [3 Simulation of a large number of
+    t-tests](#simulation-of-a-large-number-of-t-tests)
+-   [4 Comparison using normally distributed
+    data](#comparison-using-normally-distributed-data)
 
 # 1 Overview
 
@@ -11,3 +16,74 @@ Reference:
 
 -   [Speegle & Clair, Section
     8.5.4](https://mathstat.slu.edu/~speegle/_book/HTCI.html)
+
+# 2 Single t-test
+
+``` r
+time_series <- arima.sim(model = list(ar = .5), n = 100)
+plot(time_series)
+```
+
+![](2022-03-04_inadequacy-of-t-tests-for-time-series-data_files/figure-gfm/unnamed-chunk-1-1.png)<!-- -->
+
+``` r
+sample_mean <- mean(time_series)
+```
+
+Here we have an `AR(1)` model with no “intercept” or starting term. By
+definition, it is weakly stationary, with mean equal to zero. That is,
+*μ* = 0.
+
+The sample mean here is 0.1280255.
+
+We can do a t-test to assess the null hypothesis
+*H*<sub>0</sub> : *μ* = 0 vs alternative hypothesis
+*H*<sub>*a*</sub> : *μ*! = 0. In this case, we know that in reality
+*μ* = 0.
+
+``` r
+t_test_p_value <- t.test(time_series, mu=0)$p.value
+alpha <- .05
+reject_null <- t_test_p_value < alpha
+```
+
+The t-test gives a p-value of 0.2163467, which in this case means
+`reject_null` = FALSE.
+
+# 3 Simulation of a large number of t-tests
+
+To get a better sense of the performance of the t-test here, let’s
+simulate a large number of null conditions, and see what proportion are
+wrongly rejected.
+
+``` r
+alpha <- 0.05
+
+sim_data <- replicate(10000, {
+  x <- arima.sim(model = list(ar = .5), n = 100)
+  t.test(x, mu = 0)$p.value
+  
+})
+
+prop_false_rejection <- mean(sim_data < alpha)
+```
+
+The Type 1 error rate is the proportion of time the p-value is less than
+`alpha` under the null hypothesis.
+
+**Here, the value of the Type 1 error rate is 0.2555. This is much
+higher than `alpha`, which is the “advertised” Type 1 error rate.**
+
+# 4 Comparison using normally distributed data
+
+``` r
+sim_data <- replicate(10000, {
+  x <- rnorm(100, mean = 0)
+  t.test(x, mu = 0)$p.value
+  
+})
+
+prop_false_rejection_normal <- mean(sim_data < .05)
+```
+
+Here the t-test performs well. The Type 1 error rate is 0.0506
