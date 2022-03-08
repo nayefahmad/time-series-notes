@@ -35,6 +35,9 @@ library(forecast)
 ```{r}
 time_series <- arima.sim(model = list(ar = .5), n = 100)
 plot(time_series)
+fit <- lm(as.vector(time_series) ~ c(1:length(time_series)))
+abline(fit, col = "blue")
+
 acf(time_series)
 pacf(time_series)
 
