@@ -1,17 +1,29 @@
-Newey-West HAC errors for OLS
+Modeling autocorrelations: Newey-West HAC and ARIMA modeling
 ================
 Nayef Ahmad
 2022-03-08
 
 -   [1 Overview](#overview)
 -   [2 Libraries](#libraries)
+-   [3 Functions](#functions)
+-   [4 Example 1: White noise error (base
+    case)](#example-1-white-noise-error-base-case)
+-   [5 Example 2: Autocorrelated error](#example-2-autocorrelated-error)
+-   [6 Example 3: Pure ARIMA series as dependent
+    variable](#example-3-pure-arima-series-as-dependent-variable)
 
 # 1 Overview
 
-Reference:
+References:
 
 -   [Cross Validated - OLS regression with Newey-West error
-    term](https://stats.stackexchange.com/a/254596/56828)
+    term](https://stats.stackexchange.com/a/254596/56828). This includes
+    a simulation of autocorrelated residuals, and compares ordinary OLS
+    vs HAC inferences.
+-   [Cross Validated - two ways of dealing with the problem of
+    autocorrelated
+    errors](https://stats.stackexchange.com/a/181297/56828). This argues
+    that the ARIMA approach is better than using OLS + HAC errors.
 
 # 2 Libraries
 
@@ -39,73 +51,62 @@ library(sandwich)
     ## Warning: package 'sandwich' was built under R version 4.0.5
 
 ``` r
+library(forecast)
+```
+
+    ## Warning: package 'forecast' was built under R version 4.0.5
+
+    ## Registered S3 method overwritten by 'quantmod':
+    ##   method            from
+    ##   as.zoo.data.frame zoo
+
+``` r
+par(mfrow = c(1,3))
+
+layout.matrix <- matrix(c(1, 2, 1, 3), nrow = 2, ncol = 2)
+layout(mat = layout.matrix)
+# layout.show(3)
+```
+
+# 3 Functions
+
+``` r
+get_slope_line_vector_from_arima <- function(arima_model_fitted){
+  if (is.na(arima_model_fitted$coef["intercept"])) {
+    intercept <- 0
+  } else {
+    intercept <- arima_model_fitted$coef["intercept"]
+  }
+  
+  if (is.na(arima_model_fitted$coef["xreg"])) {
+    slope <- 0
+  } else {
+    slope <- arima_model_fitted$coef["xreg"]
+  }
+  
+  line_vector <- 
+    intercept + slope * c(1:arima_model_fitted$nobs)
+  
+  return(line_vector)
+}
+```
+
+# 4 Example 1: White noise error (base case)
+
+``` r
+layout.matrix <- matrix(c(1, 2, 1, 3), nrow = 2, ncol = 2)
+layout(mat = layout.matrix)
+
 n <- 50
 slope <- .05
 
 
-correlated_residuals <- arima.sim(list(ar = .9), n)
+white_noise_residuals <- rnorm(n)
 x <- 1:n
-y <- slope*(x) + correlated_residuals
+y <- slope*(x) + white_noise_residuals
 
 fit <- lm(y~x)
 
-par(mfrow = c(1,3))
-plot(x,y)
-abline(fit, col = 'blue')
-acf(fit$residuals)
-pacf(fit$residuals)
-```
-
-![](2022-03-08_newey-west-heteroskedasticity-and-autocorrelation-robust-errors_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
-
-``` r
-summary(fit) # standard estimates
-```
-
-    ## 
-    ## Call:
-    ## lm(formula = y ~ x)
-    ## 
-    ## Residuals:
-    ##     Min      1Q  Median      3Q     Max 
-    ## -4.4296 -1.9862 -0.1291  1.9976  4.0549 
-    ## 
-    ## Coefficients:
-    ##             Estimate Std. Error t value Pr(>|t|)    
-    ## (Intercept) -0.75128    0.72329  -1.039    0.304    
-    ## x            0.12072    0.02469   4.890 1.17e-05 ***
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-    ## 
-    ## Residual standard error: 2.519 on 48 degrees of freedom
-    ## Multiple R-squared:  0.3326, Adjusted R-squared:  0.3187 
-    ## F-statistic: 23.92 on 1 and 48 DF,  p-value: 1.169e-05
-
-``` r
-coeftest(fit, vcov = NeweyWest(fit, verbose = T))
-```
-
-    ## 
-    ## Lag truncation parameter chosen: 3
-
-    ## 
-    ## t test of coefficients:
-    ## 
-    ##             Estimate Std. Error t value Pr(>|t|)
-    ## (Intercept) -0.75128   13.18212 -0.0570   0.9548
-    ## x            0.12072    0.74821  0.1614   0.8725
-
-``` r
-n <- 50
-slope <- .05
-
-
-y <- arima.sim(list(ar = .9), n)
-x <- 1:n
-
-fit <- lm(y~x)
-
-par(mfrow = c(1,3))
 plot(x,y)
 abline(fit, col = 'blue')
 acf(fit$residuals)
@@ -123,19 +124,226 @@ summary(fit) # standard estimates
     ## lm(formula = y ~ x)
     ## 
     ## Residuals:
-    ##    Min     1Q Median     3Q    Max 
-    ## -3.980 -1.467  0.256  1.362  3.198 
+    ##      Min       1Q   Median       3Q      Max 
+    ## -2.09732 -0.83585  0.06536  0.71567  1.80738 
     ## 
     ## Coefficients:
     ##             Estimate Std. Error t value Pr(>|t|)    
-    ## (Intercept)  1.87312    0.52641   3.558 0.000853 ***
-    ## x           -0.11668    0.01797  -6.495 4.38e-08 ***
+    ## (Intercept) -0.36940    0.29595  -1.248    0.218    
+    ## x            0.06895    0.01010   6.826 1.36e-08 ***
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
-    ## Residual standard error: 1.833 on 48 degrees of freedom
-    ## Multiple R-squared:  0.4677, Adjusted R-squared:  0.4566 
-    ## F-statistic: 42.18 on 1 and 48 DF,  p-value: 4.384e-08
+    ## Residual standard error: 1.031 on 48 degrees of freedom
+    ## Multiple R-squared:  0.4926, Adjusted R-squared:  0.482 
+    ## F-statistic: 46.59 on 1 and 48 DF,  p-value: 1.36e-08
+
+``` r
+coeftest(fit, vcov = NeweyWest(fit, verbose = T))
+```
+
+    ## 
+    ## Lag truncation parameter chosen: 3
+
+    ## 
+    ## t test of coefficients:
+    ## 
+    ##              Estimate Std. Error t value  Pr(>|t|)    
+    ## (Intercept) -0.369404   0.257521 -1.4345    0.1579    
+    ## x            0.068946   0.010017  6.8828 1.112e-08 ***
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+``` r
+fit_arima <- auto.arima(y, xreg = x)
+summary(fit_arima)
+```
+
+    ## Series: y 
+    ## Regression with ARIMA(0,0,0) errors 
+    ## 
+    ## Coefficients:
+    ##        xreg
+    ##       0.058
+    ## s.e.  0.005
+    ## 
+    ## sigma^2 = 1.074:  log likelihood = -72.24
+    ## AIC=148.47   AICc=148.73   BIC=152.3
+    ## 
+    ## Training set error measures:
+    ##                       ME     RMSE       MAE     MPE     MAPE      MASE
+    ## Training set -0.08960779 1.026123 0.8457429 68.5858 117.9823 0.7877388
+    ##                    ACF1
+    ## Training set 0.05960743
+
+``` r
+plot(x,y)
+lines(fit_arima$fitted, col = "blue")
+lines(get_slope_line_vector_from_arima(fit_arima), col = "darkgreen")
+acf(fit_arima$residuals)
+pacf(fit_arima$residuals)
+```
+
+![](2022-03-08_newey-west-heteroskedasticity-and-autocorrelation-robust-errors_files/figure-gfm/unnamed-chunk-3-2.png)<!-- -->
+
+# 5 Example 2: Autocorrelated error
+
+In cases where non-arima fit gives almost same estimate as arima fit,
+but p-value of t-test for coefficient is far from significant, I would
+prefer the arima fit.
+
+``` r
+# Examples where Arima fit is better than OLS:       seed 1, 2, 4, 5, 10, 13, 16, 17, 20 
+# Examples where Arima fit is better than OLS + HAC: seed 1, 2, 4, 5, 10, 12, 13, 14, 15, 16, 17, 19, 20 
+# Examples where no benefit to Arima:                seed 3, 6, 7, 8, 9, 11, 18 
+layout.matrix <- matrix(c(1, 2, 1, 3), nrow = 2, ncol = 2)
+layout(mat = layout.matrix)
+
+seed <- 2
+set.seed(seed)
+
+n <- 50
+slope <- .05
+
+
+correlated_residuals <- arima.sim(list(ar = .9), n)
+x <- 1:n
+y <- slope*(x) + correlated_residuals
+
+fit <- lm(y~x)
+
+plot(x,y)
+abline(fit, col = 'blue')
+acf(fit$residuals)
+pacf(fit$residuals)
+```
+
+![](2022-03-08_newey-west-heteroskedasticity-and-autocorrelation-robust-errors_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
+
+``` r
+summary(fit) # standard estimates
+```
+
+    ## 
+    ## Call:
+    ## lm(formula = y ~ x)
+    ## 
+    ## Residuals:
+    ##     Min      1Q  Median      3Q     Max 
+    ## -3.6238 -1.2741 -0.1119  1.1357  4.3991 
+    ## 
+    ## Coefficients:
+    ##             Estimate Std. Error t value Pr(>|t|)  
+    ## (Intercept) -0.46224    0.46547  -0.993   0.3257  
+    ## x            0.02811    0.01589   1.769   0.0832 .
+    ## ---
+    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+    ## 
+    ## Residual standard error: 1.621 on 48 degrees of freedom
+    ## Multiple R-squared:  0.06123,    Adjusted R-squared:  0.04168 
+    ## F-statistic: 3.131 on 1 and 48 DF,  p-value: 0.08317
+
+``` r
+coeftest(fit, vcov = NeweyWest(fit, verbose = T))
+```
+
+    ## 
+    ## Lag truncation parameter chosen: 1
+
+    ## 
+    ## t test of coefficients:
+    ## 
+    ##             Estimate Std. Error t value Pr(>|t|)
+    ## (Intercept) -0.46224    4.57966 -0.1009   0.9200
+    ## x            0.02811    0.23621  0.1190   0.9058
+
+``` r
+fit_arima <- auto.arima(y, xreg = x)
+summary(fit_arima)
+```
+
+    ## Series: y 
+    ## Regression with ARIMA(1,0,0) errors 
+    ## 
+    ## Coefficients:
+    ##          ar1    xreg
+    ##       0.7457  0.0287
+    ## s.e.  0.1060  0.0213
+    ## 
+    ## sigma^2 = 1.381:  log likelihood = -78.39
+    ## AIC=162.79   AICc=163.31   BIC=168.52
+    ## 
+    ## Training set error measures:
+    ##                       ME     RMSE       MAE       MPE    MAPE      MASE
+    ## Training set -0.06508041 1.151214 0.9707687 -66.25045 195.649 0.9561247
+    ##                    ACF1
+    ## Training set 0.05940882
+
+``` r
+plot(x,y)
+lines(fit_arima$fitted, col = "blue")
+lines(get_slope_line_vector_from_arima(fit_arima), col = "darkgreen")
+acf(fit_arima$residuals)
+pacf(fit_arima$residuals)
+```
+
+![](2022-03-08_newey-west-heteroskedasticity-and-autocorrelation-robust-errors_files/figure-gfm/unnamed-chunk-4-2.png)<!-- -->
+
+In this specific example, where `seed =` 2, we can see that the OLS fit
+and the (OLS + HAC) fit find the estimate a slope value close to the
+true value of 0.05, but because of the large amount of unexplained
+structure, inference is not valid - the slope coefficient is not
+significant.
+
+On the other hand, the ARIMA fit includes the slope, and the estimate is
+relatively close to the true value.
+
+# 6 Example 3: Pure ARIMA series as dependent variable
+
+``` r
+layout.matrix <- matrix(c(1, 2, 1, 3), nrow = 2, ncol = 2)
+layout(mat = layout.matrix)
+
+seed <- 3
+set.seed(seed)
+
+n <- 50
+slope <- .05
+
+
+y <- arima.sim(list(ar = .9), n)
+x <- 1:n
+
+fit <- lm(y~x)
+
+plot(x,y)
+abline(fit, col = 'blue')
+acf(fit$residuals)
+pacf(fit$residuals)
+```
+
+![](2022-03-08_newey-west-heteroskedasticity-and-autocorrelation-robust-errors_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+
+``` r
+summary(fit) # standard estimates
+```
+
+    ## 
+    ## Call:
+    ## lm(formula = y ~ x)
+    ## 
+    ## Residuals:
+    ##      Min       1Q   Median       3Q      Max 
+    ## -2.63213 -0.99396 -0.05379  1.15511  3.00291 
+    ## 
+    ## Coefficients:
+    ##             Estimate Std. Error t value Pr(>|t|)
+    ## (Intercept)  0.71744    0.43512   1.649    0.106
+    ## x            0.02203    0.01485   1.483    0.144
+    ## 
+    ## Residual standard error: 1.515 on 48 degrees of freedom
+    ## Multiple R-squared:  0.04384,    Adjusted R-squared:  0.02392 
+    ## F-statistic: 2.201 on 1 and 48 DF,  p-value: 0.1445
 
 ``` r
 coeftest(fit, vcov = NeweyWest(fit, verbose = T))
@@ -147,6 +355,38 @@ coeftest(fit, vcov = NeweyWest(fit, verbose = T))
     ## 
     ## t test of coefficients:
     ## 
-    ##              Estimate Std. Error t value Pr(>|t|)
-    ## (Intercept)  1.873119   1.893252  0.9894   0.3274
-    ## x           -0.116682   0.072256 -1.6148   0.1129
+    ##             Estimate Std. Error t value Pr(>|t|)
+    ## (Intercept) 0.717443   0.712958  1.0063   0.3193
+    ## x           0.022030   0.033051  0.6665   0.5083
+
+``` r
+fit_arima <- auto.arima(y, xreg = x)
+summary(fit_arima)
+```
+
+    ## Series: y 
+    ## Regression with ARIMA(1,0,0) errors 
+    ## 
+    ## Coefficients:
+    ##          ar1    xreg
+    ##       0.8578  0.0363
+    ## s.e.  0.0680  0.0223
+    ## 
+    ## sigma^2 = 0.6203:  log likelihood = -58.65
+    ## AIC=123.31   AICc=123.83   BIC=129.05
+    ## 
+    ## Training set error measures:
+    ##                      ME      RMSE       MAE      MPE     MAPE      MASE
+    ## Training set 0.04447121 0.7717022 0.6491208 150.3636 298.8786 0.9782997
+    ##                   ACF1
+    ## Training set 0.0796193
+
+``` r
+plot(x,y)
+lines(fit_arima$fitted, col = "blue")
+lines(get_slope_line_vector_from_arima(fit_arima), col = "darkgreen")
+acf(fit_arima$residuals)
+pacf(fit_arima$residuals)
+```
+
+![](2022-03-08_newey-west-heteroskedasticity-and-autocorrelation-robust-errors_files/figure-gfm/unnamed-chunk-5-2.png)<!-- -->

@@ -1,5 +1,5 @@
 ---
-title: "Newey-West HAC errors for OLS"
+title: "Modeling autocorrelations: Newey-West HAC and ARIMA modeling"
 author: "Nayef Ahmad"
 date: "2022-03-08" 
 output: 
@@ -14,9 +14,10 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # Overview 
 
-Reference: 
+References: 
 
-- [Cross Validated - OLS regression with Newey-West error term](https://stats.stackexchange.com/a/254596/56828)
+- [Cross Validated - OLS regression with Newey-West error term](https://stats.stackexchange.com/a/254596/56828). This includes a simulation of autocorrelated residuals, and compares ordinary OLS vs HAC inferences. 
+- [Cross Validated - two ways of dealing with the problem of autocorrelated errors](https://stats.stackexchange.com/a/181297/56828). This argues that the ARIMA approach is better than using OLS + HAC errors. 
 
 
 # Libraries 
@@ -24,13 +25,47 @@ Reference:
 ```{r}
 library(lmtest)
 library(sandwich)
+library(forecast)
+
+par(mfrow = c(1,3))
+
+layout.matrix <- matrix(c(1, 2, 1, 3), nrow = 2, ncol = 2)
+layout(mat = layout.matrix)
+# layout.show(3)
 
 ```
+
+# Functions 
+
+```{r}
+get_slope_line_vector_from_arima <- function(arima_model_fitted){
+  if (is.na(arima_model_fitted$coef["intercept"])) {
+    intercept <- 0
+  } else {
+    intercept <- arima_model_fitted$coef["intercept"]
+  }
+  
+  if (is.na(arima_model_fitted$coef["xreg"])) {
+    slope <- 0
+  } else {
+    slope <- arima_model_fitted$coef["xreg"]
+  }
+  
+  line_vector <- 
+    intercept + slope * c(1:arima_model_fitted$nobs)
+  
+  return(line_vector)
+}
+```
+
 
 
 # Example 1: White noise error (base case)
 
 ```{r}
+layout.matrix <- matrix(c(1, 2, 1, 3), nrow = 2, ncol = 2)
+layout(mat = layout.matrix)
+
 n <- 50
 slope <- .05
 
@@ -41,7 +76,6 @@ y <- slope*(x) + white_noise_residuals
 
 fit <- lm(y~x)
 
-par(mfrow = c(1,3))
 plot(x,y)
 abline(fit, col = 'blue')
 acf(fit$residuals)
@@ -50,12 +84,33 @@ pacf(fit$residuals)
 
 summary(fit) # standard estimates
 coeftest(fit, vcov = NeweyWest(fit, verbose = T))
+
+
+fit_arima <- auto.arima(y, xreg = x)
+summary(fit_arima)
+
+plot(x,y)
+lines(fit_arima$fitted, col = "blue")
+lines(get_slope_line_vector_from_arima(fit_arima), col = "darkgreen")
+acf(fit_arima$residuals)
+pacf(fit_arima$residuals)
 ```
 
 
 # Example 2: Autocorrelated error 
 
+In cases where non-arima fit gives almost same estimate as arima fit, but p-value of t-test for coefficient is far from significant, I would prefer the arima fit. 
+
 ```{r}
+# Examples where Arima fit is better than OLS:       seed 1, 2, 4, 5, 10, 13, 16, 17, 20 
+# Examples where Arima fit is better than OLS + HAC: seed 1, 2, 4, 5, 10, 12, 13, 14, 15, 16, 17, 19, 20 
+# Examples where no benefit to Arima:                seed 3, 6, 7, 8, 9, 11, 18 
+layout.matrix <- matrix(c(1, 2, 1, 3), nrow = 2, ncol = 2)
+layout(mat = layout.matrix)
+
+seed <- 2
+set.seed(seed)
+
 n <- 50
 slope <- .05
 
@@ -66,7 +121,6 @@ y <- slope*(x) + correlated_residuals
 
 fit <- lm(y~x)
 
-par(mfrow = c(1,3))
 plot(x,y)
 abline(fit, col = 'blue')
 acf(fit$residuals)
@@ -75,11 +129,32 @@ pacf(fit$residuals)
 
 summary(fit) # standard estimates
 coeftest(fit, vcov = NeweyWest(fit, verbose = T))
+
+
+fit_arima <- auto.arima(y, xreg = x)
+summary(fit_arima)
+
+plot(x,y)
+lines(fit_arima$fitted, col = "blue")
+lines(get_slope_line_vector_from_arima(fit_arima), col = "darkgreen")
+acf(fit_arima$residuals)
+pacf(fit_arima$residuals)
+
 ```
+
+In this specific example, where `seed = ` `r seed`, we can see that the OLS fit and the (OLS + HAC) fit find the estimate a slope value close to the true value of `r slope`, but because of the large amount of unexplained structure, inference is not valid - the slope coefficient is not significant. 
+
+On the other hand, the ARIMA fit includes the slope, and the estimate is relatively close to the true value. 
 
 # Example 3: Pure ARIMA series as dependent variable 
 
 ```{r}
+layout.matrix <- matrix(c(1, 2, 1, 3), nrow = 2, ncol = 2)
+layout(mat = layout.matrix)
+
+seed <- 3
+set.seed(seed)
+
 n <- 50
 slope <- .05
 
@@ -89,7 +164,6 @@ x <- 1:n
 
 fit <- lm(y~x)
 
-par(mfrow = c(1,3))
 plot(x,y)
 abline(fit, col = 'blue')
 acf(fit$residuals)
@@ -97,5 +171,14 @@ pacf(fit$residuals)
 
 summary(fit) # standard estimates
 coeftest(fit, vcov = NeweyWest(fit, verbose = T))
+
+fit_arima <- auto.arima(y, xreg = x)
+summary(fit_arima)
+
+plot(x,y)
+lines(fit_arima$fitted, col = "blue")
+lines(get_slope_line_vector_from_arima(fit_arima), col = "darkgreen")
+acf(fit_arima$residuals)
+pacf(fit_arima$residuals)
 ```
 

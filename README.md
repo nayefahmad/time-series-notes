@@ -16,3 +16,4 @@ Notes on time series and forecasting methods
 1. [Generating date ranges in pandas](https://github.com/nayefahmad/time-series-notes/blob/main/src/2022-01-16_generating-date-ranges.ipynb)   
 2. [Croston's method for forecasting intermittent demand](https://github.com/nayefahmad/time-series-notes/blob/main/src/2022-02-18_crostons-method-for-forecasting-intermittent-demand.ipynb)
 3. [Demonstrating that t-tests should not be used for time series data](https://github.com/nayefahmad/time-series-notes/blob/main/src/2022-03-04_inadequacy-of-t-tests-for-time-series-data.md)
+4. [Modeling autocorrelations: Newey-West HAC and ARIMA models](https://github.com/nayefahmad/time-series-notes/blob/main/src/2022-03-08_newey-west-heteroskedasticity-and-autocorrelation-robust-errors.md)
