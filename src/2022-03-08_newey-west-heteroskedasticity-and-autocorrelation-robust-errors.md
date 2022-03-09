@@ -136,33 +136,33 @@ summary(fit) # standard estimates
     ## lm(formula = y ~ x)
     ## 
     ## Residuals:
-    ##      Min       1Q   Median       3Q      Max 
-    ## -1.84259 -0.43207  0.01309  0.42442  2.00734 
+    ##     Min      1Q  Median      3Q     Max 
+    ## -2.2314 -0.5123  0.1399  0.6037  2.2652 
     ## 
     ## Coefficients:
     ##             Estimate Std. Error t value Pr(>|t|)    
-    ## (Intercept) 0.038515   0.212067   0.182    0.857    
-    ## x           0.042166   0.007238   5.826 4.62e-07 ***
+    ## (Intercept) -0.34269    0.26606  -1.288    0.204    
+    ## x            0.06563    0.00908   7.227  3.3e-09 ***
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
-    ## Residual standard error: 0.7386 on 48 degrees of freedom
-    ## Multiple R-squared:  0.4142, Adjusted R-squared:  0.402 
-    ## F-statistic: 33.94 on 1 and 48 DF,  p-value: 4.621e-07
+    ## Residual standard error: 0.9266 on 48 degrees of freedom
+    ## Multiple R-squared:  0.5211, Adjusted R-squared:  0.5111 
+    ## F-statistic: 52.23 on 1 and 48 DF,  p-value: 3.301e-09
 
 ``` r
 coeftest(fit, vcov = NeweyWest(fit, verbose = T))
 ```
 
     ## 
-    ## Lag truncation parameter chosen: 2
+    ## Lag truncation parameter chosen: 1
 
     ## 
     ## t test of coefficients:
     ## 
-    ##              Estimate Std. Error t value  Pr(>|t|)    
-    ## (Intercept) 0.0385148  0.2704861  0.1424    0.8874    
-    ## x           0.0421660  0.0090833  4.6421 2.695e-05 ***
+    ##               Estimate Std. Error t value  Pr(>|t|)    
+    ## (Intercept) -0.3426888  0.1904078 -1.7998   0.07819 .  
+    ## x            0.0656255  0.0060779 10.7974 1.936e-14 ***
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
@@ -172,21 +172,21 @@ summary(fit_arima)
 ```
 
     ## Series: y 
-    ## Regression with ARIMA(0,0,0) errors 
+    ## Regression with ARIMA(0,0,1) errors 
     ## 
     ## Coefficients:
-    ##         xreg
-    ##       0.0433
-    ## s.e.  0.0035
+    ##           ma1  intercept    xreg
+    ##       -0.2802    -0.3284  0.0650
+    ## s.e.   0.1320     0.1841  0.0063
     ## 
-    ## sigma^2 = 0.5347:  log likelihood = -54.79
-    ## AIC=113.58   AICc=113.84   BIC=117.4
+    ## sigma^2 = 0.8084:  log likelihood = -64.12
+    ## AIC=136.25   AICc=137.14   BIC=143.9
     ## 
     ## Training set error measures:
-    ##                       ME      RMSE       MAE      MPE    MAPE      MASE
-    ## Training set 0.009342702 0.7238787 0.5295841 23.40765 80.5857 0.6623062
-    ##                    ACF1
-    ## Training set 0.08504571
+    ##                        ME      RMSE       MAE     MPE     MAPE      MASE
+    ## Training set -0.002247963 0.8717236 0.7043367 2.29856 125.1323 0.6075731
+    ##                     ACF1
+    ## Training set -0.01213301
 
 ``` r
 plot(x,y)
