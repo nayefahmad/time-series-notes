@@ -14,7 +14,19 @@ Nayef Ahmad
 
 # 1 Overview
 
-References:
+When there is autocorrelation of residuals, this means that your model
+is leaving value on the table - out of sheer laziness, it has not
+accounted for all of the structure available. You should not want to
+listen to the advice of someone who does not work as hard as you do. Ask
+them to work harder and come back to you after they’ve done their
+homework. Then you can discuss results (i.e. make inferences).
+
+In this file, we explore two ways to get your model to “work harder” and
+account for autocorrelation. The first is to use OLS as usual, then
+correct the estimate of the covariance matrix of the parameters. The
+second is to directly model autocorrelation using an ARIMA model.
+
+**References:**
 
 -   [Cross Validated - OLS regression with Newey-West error
     term](https://stats.stackexchange.com/a/254596/56828). This includes
@@ -125,32 +137,32 @@ summary(fit) # standard estimates
     ## 
     ## Residuals:
     ##      Min       1Q   Median       3Q      Max 
-    ## -2.09732 -0.83585  0.06536  0.71567  1.80738 
+    ## -2.23900 -0.60900 -0.09437  0.65565  2.58798 
     ## 
     ## Coefficients:
-    ##             Estimate Std. Error t value Pr(>|t|)    
-    ## (Intercept) -0.36940    0.29595  -1.248    0.218    
-    ## x            0.06895    0.01010   6.826 1.36e-08 ***
+    ##             Estimate Std. Error t value Pr(>|t|)   
+    ## (Intercept)  0.58263    0.30736   1.896  0.06405 . 
+    ## x            0.03547    0.01049   3.381  0.00144 **
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
-    ## Residual standard error: 1.031 on 48 degrees of freedom
-    ## Multiple R-squared:  0.4926, Adjusted R-squared:  0.482 
-    ## F-statistic: 46.59 on 1 and 48 DF,  p-value: 1.36e-08
+    ## Residual standard error: 1.07 on 48 degrees of freedom
+    ## Multiple R-squared:  0.1924, Adjusted R-squared:  0.1755 
+    ## F-statistic: 11.43 on 1 and 48 DF,  p-value: 0.001443
 
 ``` r
 coeftest(fit, vcov = NeweyWest(fit, verbose = T))
 ```
 
     ## 
-    ## Lag truncation parameter chosen: 3
+    ## Lag truncation parameter chosen: 1
 
     ## 
     ## t test of coefficients:
     ## 
-    ##              Estimate Std. Error t value  Pr(>|t|)    
-    ## (Intercept) -0.369404   0.257521 -1.4345    0.1579    
-    ## x            0.068946   0.010017  6.8828 1.112e-08 ***
+    ##             Estimate Std. Error t value Pr(>|t|)   
+    ## (Intercept) 0.582633   0.269282  2.1637 0.035499 * 
+    ## x           0.035470   0.011518  3.0795 0.003425 **
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
@@ -163,18 +175,18 @@ summary(fit_arima)
     ## Regression with ARIMA(0,0,0) errors 
     ## 
     ## Coefficients:
-    ##        xreg
-    ##       0.058
-    ## s.e.  0.005
+    ##       intercept    xreg
+    ##          0.5826  0.0355
+    ## s.e.     0.3012  0.0103
     ## 
-    ## sigma^2 = 1.074:  log likelihood = -72.24
-    ## AIC=148.47   AICc=148.73   BIC=152.3
+    ## sigma^2 = 1.146:  log likelihood = -73.33
+    ## AIC=152.66   AICc=153.18   BIC=158.4
     ## 
     ## Training set error measures:
-    ##                       ME     RMSE       MAE     MPE     MAPE      MASE
-    ## Training set -0.08960779 1.026123 0.8457429 68.5858 117.9823 0.7877388
+    ##                         ME     RMSE       MAE       MPE     MAPE      MASE
+    ## Training set -1.432795e-16 1.048811 0.8285336 -197.9464 254.4247 0.6248555
     ##                    ACF1
-    ## Training set 0.05960743
+    ## Training set -0.1528394
 
 ``` r
 plot(x,y)
