@@ -44,6 +44,15 @@ layout(mat = layout.matrix)
 
 ```{r}
 get_slope_line_vector_from_arima <- function(arima_model_fitted){
+  # Args: 
+  # - arima_model_fitted: Fitted ARIMA model, such as the models returned 
+  #     by forecast::auto.arima()
+  # 
+  # Returns: 
+  # - line_vector: A numeric vector of same length as the data passed to 
+  #     the ARIMA fitting procedure. These values represent the underlying 
+  #     linear trend after fitting the ARIMA model 
+  
   if (is.na(arima_model_fitted$coef["intercept"])) {
     intercept <- 0
   } else {
