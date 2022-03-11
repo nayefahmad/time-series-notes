@@ -33,6 +33,10 @@ library(forecast)
 # Single t-test
 
 ```{r}
+layout.matrix <- matrix(c(1, 2, 1, 3), nrow = 2, ncol = 2)
+layout(mat = layout.matrix)
+
+
 time_series <- arima.sim(model = list(ar = .5), n = 100)
 plot(time_series)
 fit <- lm(as.vector(time_series) ~ c(1:length(time_series)))
@@ -102,20 +106,28 @@ Here the t-test performs well. The Type 1 error rate is `r prop_false_rejection_
 We can use `auto.arima()` to fit an ARIMA model that accounts for the time series structure in our data. If the model accounts for most of the structure, then the residuals should be close to white noise - that is, independent and identically distributed. Thus, the t-test should work well on the residuals. 
 
 ```{r}
+layout.matrix <- matrix(c(1, 2, 1, 3), nrow = 2, ncol = 2)
+layout(mat = layout.matrix)
+
+
 time_series <- arima.sim(model = list(ar = .5), n = 200)
 model <- auto.arima(time_series, stepwise = FALSE, approximation = FALSE)
 
 plot(time_series)
 lines(model$fitted, col = "blue")
 
-if (is.na(model$coef["intercept"])){
+if (is.na(model$coef["intercept"])) {
   intercept <- 0
 } else {
   intercept <- model$coef["intercept"]
 }
 
+
+hist(model$residuals)
+
 shifted_residuals <- model$residuals + intercept
 hist(shifted_residuals)
+
 
 alpha <- 0.05
 t_test_p_value <- t.test(shifted_residuals, mu = 0)$p.value
@@ -137,7 +149,7 @@ sim_data <- replicate(1000, {
   
   model <- auto.arima(x, stepwise = TRUE, approximation = TRUE)
   
-  if (is.na(model$coef["intercept"])){
+  if (is.na(model$coef["intercept"])) {
     intercept <- 0
   } else {
     intercept <- model$coef["intercept"]

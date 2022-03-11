@@ -46,25 +46,20 @@ library(forecast)
 # 3 Single t-test
 
 ``` r
+layout.matrix <- matrix(c(1, 2, 1, 3), nrow = 2, ncol = 2)
+layout(mat = layout.matrix)
+
+
 time_series <- arima.sim(model = list(ar = .5), n = 100)
 plot(time_series)
 fit <- lm(as.vector(time_series) ~ c(1:length(time_series)))
 abline(fit, col = "blue")
-```
 
-![](2022-03-04_inadequacy-of-t-tests-for-time-series-data_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
-
-``` r
 acf(time_series)
-```
-
-![](2022-03-04_inadequacy-of-t-tests-for-time-series-data_files/figure-gfm/unnamed-chunk-2-2.png)<!-- -->
-
-``` r
 pacf(time_series)
 ```
 
-![](2022-03-04_inadequacy-of-t-tests-for-time-series-data_files/figure-gfm/unnamed-chunk-2-3.png)<!-- -->
+![](2022-03-04_inadequacy-of-t-tests-for-time-series-data_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
 
 ``` r
 sample_mean <- mean(time_series)
@@ -74,7 +69,7 @@ Here we have an `AR(1)` model with no “intercept” or starting term. By
 definition, it is weakly stationary, with mean equal to zero. That is,
 *μ* = 0.
 
-The sample mean here is -0.0184821.
+The sample mean here is -0.0216286.
 
 We can do a t-test to assess the null hypothesis
 *H*<sub>0</sub> : *μ* = 0 vs alternative hypothesis
@@ -87,7 +82,7 @@ alpha <- .05
 reject_null <- t_test_p_value < alpha
 ```
 
-The t-test gives a p-value of 0.8768696, which in this case means
+The t-test gives a p-value of 0.8397995, which in this case means
 `reject_null` = FALSE.
 
 # 4 Simulation of a large number of t-tests
@@ -111,7 +106,7 @@ prop_false_rejection <- mean(sim_data < alpha)
 The Type 1 error rate is the proportion of time the p-value is less than
 `alpha` under the null hypothesis.
 
-**Here, the value of the Type 1 error rate is 0.2616. This is much
+**Here, the value of the Type 1 error rate is 0.2651. This is much
 higher than `alpha`, which is the “advertised” Type 1 error rate.**
 
 # 5 Comparison using normally distributed data
@@ -126,7 +121,7 @@ sim_data <- replicate(10000, {
 prop_false_rejection_normal <- mean(sim_data < .05)
 ```
 
-Here the t-test performs well. The Type 1 error rate is 0.0483
+Here the t-test performs well. The Type 1 error rate is 0.0479
 
 # 6 Working with residuals from fitted ARIMA model
 
@@ -137,27 +132,30 @@ independent and identically distributed. Thus, the t-test should work
 well on the residuals.
 
 ``` r
+layout.matrix <- matrix(c(1, 2, 1, 3), nrow = 2, ncol = 2)
+layout(mat = layout.matrix)
+
+
 time_series <- arima.sim(model = list(ar = .5), n = 200)
 model <- auto.arima(time_series, stepwise = FALSE, approximation = FALSE)
 
 plot(time_series)
 lines(model$fitted, col = "blue")
-```
 
-![](2022-03-04_inadequacy-of-t-tests-for-time-series-data_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
-
-``` r
-if (is.na(model$coef["intercept"])){
+if (is.na(model$coef["intercept"])) {
   intercept <- 0
 } else {
   intercept <- model$coef["intercept"]
 }
 
+
+hist(model$residuals)
+
 shifted_residuals <- model$residuals + intercept
 hist(shifted_residuals)
 ```
 
-![](2022-03-04_inadequacy-of-t-tests-for-time-series-data_files/figure-gfm/unnamed-chunk-6-2.png)<!-- -->
+![](2022-03-04_inadequacy-of-t-tests-for-time-series-data_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
 
 ``` r
 alpha <- 0.05
@@ -165,7 +163,7 @@ t_test_p_value <- t.test(shifted_residuals, mu = 0)$p.value
 reject_null <- t_test_p_value < alpha
 ```
 
-In this case, the p-value is 0.2742381, and `reject_null` is FALSE
+In this case, the p-value is 0.7117781, and `reject_null` is FALSE
 
 ## 6.1 Simulation over many iterations
 
@@ -179,7 +177,7 @@ sim_data <- replicate(1000, {
   
   model <- auto.arima(x, stepwise = TRUE, approximation = TRUE)
   
-  if (is.na(model$coef["intercept"])){
+  if (is.na(model$coef["intercept"])) {
     intercept <- 0
   } else {
     intercept <- model$coef["intercept"]
@@ -195,5 +193,5 @@ prop_false_rejection <- mean(sim_data < alpha)
 ```
 
 **The Type 1 error rate after removing some time series structure is
-0.148. Although this is still inflated, it is an improvement over the
+0.145. Although this is still inflated, it is an improvement over the
 uncorrected t-test result.**
