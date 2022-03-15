@@ -35,7 +35,11 @@ InteractiveShell.ast_node_interactivity = "all"
 # ## Example 1: PBS dataset
 
 y = load_PBS_dataset()
-y.tail()
+
+fig, ax = plt.subplots()
+y.plot(ax=ax)
+ax.set_title("PBS dataset")
+fig.show()
 
 forecaster = Croston(smoothing=0.1)
 forecaster.fit(y)
@@ -129,3 +133,9 @@ for n, smooth_value in enumerate([10, 1.5, 1, 0.5, 0.1, 0.01]):
 fig.tight_layout()
 fig.show()
 # fig.savefig('dst/alpha-values2.pdf')
+
+
+# ## Example 4
+
+# Here we try to see how forecasts change as we spread out/cluster the
+# positive values
