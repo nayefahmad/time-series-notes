@@ -139,3 +139,40 @@ fig.show()
 
 # Here we try to see how forecasts change as we spread out/cluster the
 # positive values
+
+y_not_clustered = pd.Series(
+    [0, 1] + [0] * 3 + [1] + [0] * 3 + [1],
+    name="y_not_clustered",
+)
+
+y_clustered = pd.Series(
+    [0] * 7 + [1, 1, 1],
+    name="y_clustered",
+)
+
+smooth_value = 0.1  # todo: try different smooth_values
+
+fig = plt.figure(figsize=(10, 5))
+for n, y_series in enumerate([y_not_clustered, y_clustered]):
+    forecaster = Croston(smoothing=smooth_value)
+    forecaster.fit(y_series)
+    y_pred = forecaster.predict(fh=[x for x in range(1, 4)])
+
+    df_fitted = pd.DataFrame(
+        {"y": y_series, "y_fitted": forecaster._f[1:]}, index=y_series.index
+    )  # noqa
+    df_pred = pd.concat([df_fitted, y_pred])
+    df_pred = df_pred.rename(columns={0: "y_predicted"})
+
+    plt.suptitle("Hi")
+    ax = plt.subplot(2, 1, n + 1)
+    df_pred.plot(ax=ax)
+    ax.set_title(
+        f"Example 4 of forecast using Croston's method \nAlpha = {smooth_value}\n Series name = {y_series.name}"  # noqa
+    )
+    ax.set_ylim(0, 3)
+
+    plt.subplots_adjust(wspace=1, top=20)
+fig.tight_layout()
+fig.show()
+# fig.savefig('clustered-vs-not-clustered.pdf')
