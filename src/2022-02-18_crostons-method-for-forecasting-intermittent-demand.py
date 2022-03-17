@@ -164,15 +164,13 @@ for n, y_series in enumerate([y_not_clustered, y_clustered]):
     df_pred = pd.concat([df_fitted, y_pred])
     df_pred = df_pred.rename(columns={0: "y_predicted"})
 
-    plt.suptitle("Hi")
+    plt.suptitle("This is a suptitle", size=24, y=1.02)
     ax = plt.subplot(2, 1, n + 1)
     df_pred.plot(ax=ax)
     ax.set_title(
         f"Example 4 of forecast using Croston's method \nAlpha = {smooth_value}\n Series name = {y_series.name}"  # noqa
     )
     ax.set_ylim(0, 3)
-
-    plt.subplots_adjust(wspace=1, top=20)
 fig.tight_layout()
 fig.show()
 # fig.savefig('clustered-vs-not-clustered.pdf')
