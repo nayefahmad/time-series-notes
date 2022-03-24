@@ -155,32 +155,32 @@ summary(fit) # standard estimates
     ## 
     ## Residuals:
     ##      Min       1Q   Median       3Q      Max 
-    ## -1.91022 -0.69829 -0.00632  0.78111  1.97382 
+    ## -2.91014 -0.76395  0.07692  0.75766  2.19645 
     ## 
     ## Coefficients:
-    ##              Estimate Std. Error t value Pr(>|t|)    
-    ## (Intercept) -0.177713   0.288546  -0.616    0.541    
-    ## x            0.041997   0.009848   4.265 9.34e-05 ***
+    ##             Estimate Std. Error t value Pr(>|t|)    
+    ## (Intercept) -0.12785    0.33539  -0.381    0.705    
+    ## x            0.05591    0.01145   4.884 1.19e-05 ***
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
-    ## Residual standard error: 1.005 on 48 degrees of freedom
-    ## Multiple R-squared:  0.2748, Adjusted R-squared:  0.2597 
-    ## F-statistic: 18.19 on 1 and 48 DF,  p-value: 9.339e-05
+    ## Residual standard error: 1.168 on 48 degrees of freedom
+    ## Multiple R-squared:  0.332,  Adjusted R-squared:  0.3181 
+    ## F-statistic: 23.86 on 1 and 48 DF,  p-value: 1.195e-05
 
 ``` r
 coeftest(fit, vcov = NeweyWest(fit, verbose = T))
 ```
 
     ## 
-    ## Lag truncation parameter chosen: 0
+    ## Lag truncation parameter chosen: 2
 
     ## 
     ## t test of coefficients:
     ## 
-    ##               Estimate Std. Error t value  Pr(>|t|)    
-    ## (Intercept) -0.1777131  0.2383330 -0.7457    0.4595    
-    ## x            0.0419974  0.0088762  4.7315 1.999e-05 ***
+    ##              Estimate Std. Error t value  Pr(>|t|)    
+    ## (Intercept) -0.127849   0.241914 -0.5285    0.5996    
+    ## x            0.055908   0.010307  5.4240 1.876e-06 ***
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
@@ -212,17 +212,17 @@ summary(fit_arima)
     ## 
     ## Coefficients:
     ##         xreg
-    ##       0.0367
-    ## s.e.  0.0048
+    ##       0.0521
+    ## s.e.  0.0055
     ## 
-    ## sigma^2 = 0.997:  log likelihood = -70.37
-    ## AIC=144.73   AICc=144.99   BIC=148.56
+    ## sigma^2 = 1.341:  log likelihood = -77.77
+    ## AIC=159.54   AICc=159.79   BIC=163.36
     ## 
     ## Training set error measures:
-    ##                       ME      RMSE       MAE      MPE     MAPE      MASE
-    ## Training set -0.04310863 0.9884771 0.8323149 82.53892 358.4746 0.7657765
-    ##                     ACF1
-    ## Training set -0.02085614
+    ##                      ME    RMSE       MAE       MPE     MAPE      MASE
+    ## Training set -0.0310128 1.14617 0.8927144 -40.77468 148.9858 0.7262621
+    ##                   ACF1
+    ## Training set 0.1613632
 
 # 5 Example 2: Autocorrelated error
 
@@ -230,13 +230,16 @@ In cases where non-arima fit gives almost same estimate as arima fit,
 but p-value of t-test for coefficient is far from significant, I would
 prefer the arima fit.
 
-``` r
-# Examples where Arima fit is better than OLS:       seed 1, 2, 4, 5, 10, 13, 16, 17, 20 
-# Examples where Arima fit is better than OLS + HAC: seed 1, 2, 4, 5, 10, 12, 13, 14, 15, 16, 17, 19, 20 
-# Examples where no benefit to Arima:                seed 3, 6, 7, 8, 9, 11, 18 
-layout.matrix <- matrix(c(1, 2, 1, 3), nrow = 2, ncol = 2)
-layout(mat = layout.matrix)
+-   Examples where Arima fit is better than OLS:
+    -   seed 1, 2, 4, 5, 10, 13, 16, 17, 20
+-   Examples where Arima fit is better than OLS + HAC:
+    -   seed 1, 2, 4, 5, 10, 12, 13, 14, 15, 16, 17, 19, 20
+-   Examples where no benefit to Arima:
+    -   seed 3, 6, 7, 8, 9, 11, 18
 
+First set up the data.
+
+``` r
 seed <- 2
 set.seed(seed)
 
@@ -247,6 +250,13 @@ slope <- .05
 correlated_residuals <- arima.sim(list(ar = .9), n)
 x <- 1:n
 y <- slope*(x) + correlated_residuals
+```
+
+Fit lm model, and plot.
+
+``` r
+layout.matrix <- matrix(c(1, 2, 1, 3), nrow = 2, ncol = 2)
+layout(mat = layout.matrix)
 
 fit <- lm(y~x)
 
@@ -256,7 +266,9 @@ acf(fit$residuals)
 pacf(fit$residuals)
 ```
 
-![](2022-03-08_newey-west-heteroskedasticity-and-autocorrelation-robust-errors_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+![](2022-03-08_newey-west-heteroskedasticity-and-autocorrelation-robust-errors_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
+
+Model output, using standard and Newey-West HAC errors:
 
 ``` r
 summary(fit) # standard estimates
@@ -295,7 +307,12 @@ coeftest(fit, vcov = NeweyWest(fit, verbose = T))
     ## (Intercept) -0.46224    4.57966 -0.1009   0.9200
     ## x            0.02811    0.23621  0.1190   0.9058
 
+Fit ARIMA model, and plot
+
 ``` r
+layout.matrix <- matrix(c(1, 2, 1, 3), nrow = 2, ncol = 2)
+layout(mat = layout.matrix)
+
 fit_arima <- auto.arima(y, xreg = x)
 summary(fit_arima)
 ```
@@ -325,7 +342,7 @@ acf(fit_arima$residuals)
 pacf(fit_arima$residuals)
 ```
 
-![](2022-03-08_newey-west-heteroskedasticity-and-autocorrelation-robust-errors_files/figure-gfm/unnamed-chunk-8-2.png)<!-- -->
+![](2022-03-08_newey-west-heteroskedasticity-and-autocorrelation-robust-errors_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
 
 In this specific example, where `seed =` 2, we can see that the OLS fit
 and the (OLS + HAC) fit find the estimate a slope value close to the
@@ -338,10 +355,9 @@ relatively close to the true value.
 
 # 6 Example 3: Pure ARIMA series as dependent variable
 
-``` r
-layout.matrix <- matrix(c(1, 2, 1, 3), nrow = 2, ncol = 2)
-layout(mat = layout.matrix)
+First set up the data.
 
+``` r
 seed <- 3
 set.seed(seed)
 
@@ -351,6 +367,13 @@ slope <- .05
 
 y <- arima.sim(list(ar = .9), n)
 x <- 1:n
+```
+
+Fit lm model, and plot.
+
+``` r
+layout.matrix <- matrix(c(1, 2, 1, 3), nrow = 2, ncol = 2)
+layout(mat = layout.matrix)
 
 fit <- lm(y~x)
 
@@ -360,7 +383,9 @@ acf(fit$residuals)
 pacf(fit$residuals)
 ```
 
-![](2022-03-08_newey-west-heteroskedasticity-and-autocorrelation-robust-errors_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
+![](2022-03-08_newey-west-heteroskedasticity-and-autocorrelation-robust-errors_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
+
+Model output, using standard and Newey-West HAC errors:
 
 ``` r
 summary(fit) # standard estimates
@@ -397,7 +422,12 @@ coeftest(fit, vcov = NeweyWest(fit, verbose = T))
     ## (Intercept) 0.717443   0.712958  1.0063   0.3193
     ## x           0.022030   0.033051  0.6665   0.5083
 
+Fit ARIMA model, and plot
+
 ``` r
+layout.matrix <- matrix(c(1, 2, 1, 3), nrow = 2, ncol = 2)
+layout(mat = layout.matrix)
+
 fit_arima <- auto.arima(y, xreg = x)
 summary(fit_arima)
 ```
@@ -427,4 +457,4 @@ acf(fit_arima$residuals)
 pacf(fit_arima$residuals)
 ```
 
-![](2022-03-08_newey-west-heteroskedasticity-and-autocorrelation-robust-errors_files/figure-gfm/unnamed-chunk-9-2.png)<!-- -->
+![](2022-03-08_newey-west-heteroskedasticity-and-autocorrelation-robust-errors_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->

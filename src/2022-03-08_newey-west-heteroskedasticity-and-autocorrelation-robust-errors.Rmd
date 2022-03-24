@@ -142,13 +142,16 @@ summary(fit_arima)
 
 In cases where non-arima fit gives almost same estimate as arima fit, but p-value of t-test for coefficient is far from significant, I would prefer the arima fit. 
 
-```{r}
-# Examples where Arima fit is better than OLS:       seed 1, 2, 4, 5, 10, 13, 16, 17, 20 
-# Examples where Arima fit is better than OLS + HAC: seed 1, 2, 4, 5, 10, 12, 13, 14, 15, 16, 17, 19, 20 
-# Examples where no benefit to Arima:                seed 3, 6, 7, 8, 9, 11, 18 
-layout.matrix <- matrix(c(1, 2, 1, 3), nrow = 2, ncol = 2)
-layout(mat = layout.matrix)
+- Examples where Arima fit is better than OLS:
+  - seed 1, 2, 4, 5, 10, 13, 16, 17, 20 
+- Examples where Arima fit is better than OLS + HAC:
+  - seed 1, 2, 4, 5, 10, 12, 13, 14, 15, 16, 17, 19, 20 
+- Examples where no benefit to Arima:
+  - seed 3, 6, 7, 8, 9, 11, 18 
 
+First set up the data.
+
+```{r}
 seed <- 2
 set.seed(seed)
 
@@ -160,6 +163,14 @@ correlated_residuals <- arima.sim(list(ar = .9), n)
 x <- 1:n
 y <- slope*(x) + correlated_residuals
 
+```
+
+Fit lm model, and plot. 
+
+```{r}
+layout.matrix <- matrix(c(1, 2, 1, 3), nrow = 2, ncol = 2)
+layout(mat = layout.matrix)
+
 fit <- lm(y~x)
 
 plot(x,y)
@@ -167,10 +178,21 @@ abline(fit, col = 'blue')
 acf(fit$residuals)
 pacf(fit$residuals)
 
+```
 
+Model output, using standard and Newey-West HAC errors: 
+
+```{r}
 summary(fit) # standard estimates
 coeftest(fit, vcov = NeweyWest(fit, verbose = T))
 
+```
+
+Fit ARIMA model, and plot
+
+```{r}
+layout.matrix <- matrix(c(1, 2, 1, 3), nrow = 2, ncol = 2)
+layout(mat = layout.matrix)
 
 fit_arima <- auto.arima(y, xreg = x)
 summary(fit_arima)
@@ -189,10 +211,9 @@ On the other hand, the ARIMA fit includes the slope, and the estimate is relativ
 
 # Example 3: Pure ARIMA series as dependent variable 
 
-```{r}
-layout.matrix <- matrix(c(1, 2, 1, 3), nrow = 2, ncol = 2)
-layout(mat = layout.matrix)
+First set up the data.
 
+```{r}
 seed <- 3
 set.seed(seed)
 
@@ -203,6 +224,14 @@ slope <- .05
 y <- arima.sim(list(ar = .9), n)
 x <- 1:n
 
+```
+
+Fit lm model, and plot. 
+
+```{r}
+layout.matrix <- matrix(c(1, 2, 1, 3), nrow = 2, ncol = 2)
+layout(mat = layout.matrix)
+
 fit <- lm(y~x)
 
 plot(x,y)
@@ -210,8 +239,21 @@ abline(fit, col = 'blue')
 acf(fit$residuals)
 pacf(fit$residuals)
 
+```
+
+Model output, using standard and Newey-West HAC errors: 
+
+```{r}
+
 summary(fit) # standard estimates
 coeftest(fit, vcov = NeweyWest(fit, verbose = T))
+```
+
+Fit ARIMA model, and plot
+
+```{r}
+layout.matrix <- matrix(c(1, 2, 1, 3), nrow = 2, ncol = 2)
+layout(mat = layout.matrix)
 
 fit_arima <- auto.arima(y, xreg = x)
 summary(fit_arima)
