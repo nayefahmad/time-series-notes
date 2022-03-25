@@ -43,6 +43,51 @@ layout(mat = layout.matrix)
 # Functions 
 
 ```{r}
+data_with_white_noise_error <- function(iterations = 2, 
+                                        n_values = c(50, 100)){
+  # Create a dataframe of simulated X and Y data, iterating over several
+  # sample sizes. Each iteration is a single sample for the given parameters.  
+  # We want several samples for each set of parameters. 
+  # 
+  # Args:
+  #   - iterations: number of datasets to create 
+  # 
+  # Returns: 
+  #   - df: dataframe with columns x and y
+  
+  slope <- .05 
+  
+  x_collected <- vector()
+  y_collected <- vector()
+  sample_id <- vector()
+  
+  index <- 0
+  for (n in n_values){
+    white_noise_residuals <- rnorm(n * i)
+    x <- rep(seq(n), i)
+    y <- slope * x + white_noise_residuals
+    
+    x_collected <- append(x_collected, x)
+    y_collected <- append(y_collected, y)
+    sample_id <- append(sample_id, rep(seq(1 + index:i + index), each = n))
+    
+    index <- index + i
+  }
+  
+  
+  
+  df <- data.frame(sample_id, 
+                   x = x_collected,
+                   y = y_collected)
+  
+  return(df)
+  
+}
+
+
+
+
+
 get_slope_line_vector_from_arima <- function(arima_model_fitted){
   # Args: 
   # - arima_model_fitted: Fitted ARIMA model, such as the models returned 
@@ -70,6 +115,23 @@ get_slope_line_vector_from_arima <- function(arima_model_fitted){
   
   return(line_vector)
 }
+```
+
+
+# Data generation 
+
+```{r}
+seed <- 2022
+set.seed(seed)
+
+# df_white_noise <- data_with_white_noise_error(iterations = i, n_values = c(50, 100), ar_coeffecients = seq(0, .9, .2))
+
+# df_arima_error <- data_with_arima_error(iterations = i, n_values = c(50, 100), ar_coeffecients = seq(0, .9, .2))
+
+# df_arima <- data_with_arima_response(iterations = i, n_values = c(50, 100), ar_coeffecients = seq(0, .9, .2))
+
+
+
 ```
 
 
