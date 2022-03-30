@@ -31,6 +31,7 @@ In this file, we explore two ways to get your model to "work harder" and account
 library(lmtest)
 library(sandwich)
 library(forecast)
+library(tidyverse)
 
 par(mfrow = c(1,3))
 
@@ -43,10 +44,10 @@ layout(mat = layout.matrix)
 # Functions 
 
 ```{r}
-data_with_white_noise_error <- function(iterations = 10, 
+data_with_white_noise_error <- function(iterations = 20, 
                                         n = 50){
-  # Create a dataframe of simulated X and Y data, for a given sample sizes.
-  # Each iteration is a single sample for the given parameters.  
+  # Create a dataframe of simulated X and Y data, for a given sample size.
+  # Each iteration is a single sample of size n for the given parameters.  
   # We want several samples for each set of parameters. 
   # 
   # Args:
@@ -108,6 +109,9 @@ get_slope_line_vector_from_arima <- function(arima_model_fitted){
 # Data generation 
 
 Let's visualize what these series look like, for a given n value. 
+
+
+## White noise error 
 
 ```{r}
 seed <- 2022

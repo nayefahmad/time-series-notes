@@ -69,7 +69,7 @@ Here we have an `AR(1)` model with no “intercept” or starting term. By
 definition, it is weakly stationary, with mean equal to zero. That is,
 *μ* = 0.
 
-The sample mean here is -0.0216286.
+The sample mean here is 0.0945081.
 
 We can do a t-test to assess the null hypothesis
 *H*<sub>0</sub> : *μ* = 0 vs alternative hypothesis
@@ -82,7 +82,7 @@ alpha <- .05
 reject_null <- t_test_p_value < alpha
 ```
 
-The t-test gives a p-value of 0.8397995, which in this case means
+The t-test gives a p-value of 0.385277, which in this case means
 `reject_null` = FALSE.
 
 # 4 Simulation of a large number of t-tests
@@ -106,7 +106,7 @@ prop_false_rejection <- mean(sim_data < alpha)
 The Type 1 error rate is the proportion of time the p-value is less than
 `alpha` under the null hypothesis.
 
-**Here, the value of the Type 1 error rate is 0.2651. This is much
+**Here, the value of the Type 1 error rate is 0.2605. This is much
 higher than `alpha`, which is the “advertised” Type 1 error rate.**
 
 # 5 Comparison using normally distributed data
@@ -121,7 +121,7 @@ sim_data <- replicate(10000, {
 prop_false_rejection_normal <- mean(sim_data < .05)
 ```
 
-Here the t-test performs well. The Type 1 error rate is 0.0479
+Here the t-test performs well. The Type 1 error rate is 0.0471
 
 # 6 Working with residuals from fitted ARIMA model
 
@@ -163,7 +163,7 @@ t_test_p_value <- t.test(shifted_residuals, mu = 0)$p.value
 reject_null <- t_test_p_value < alpha
 ```
 
-In this case, the p-value is 0.7117781, and `reject_null` is FALSE
+In this case, the p-value is 0.7403695, and `reject_null` is FALSE
 
 ## 6.1 Simulation over many iterations
 
@@ -193,5 +193,5 @@ prop_false_rejection <- mean(sim_data < alpha)
 ```
 
 **The Type 1 error rate after removing some time series structure is
-0.145. Although this is still inflated, it is an improvement over the
+0.141. Although this is still inflated, it is an improvement over the
 uncorrected t-test result.**

@@ -6,10 +6,12 @@ Nayef Ahmad
 -   [1 Overview](#overview)
 -   [2 Libraries](#libraries)
 -   [3 Functions](#functions)
--   [4 Example 1: White noise error (base
+-   [4 Data generation](#data-generation)
+    -   [4.1 White noise error](#white-noise-error)
+-   [5 Example 1: White noise error (base
     case)](#example-1-white-noise-error-base-case)
--   [5 Example 2: Autocorrelated error](#example-2-autocorrelated-error)
--   [6 Example 3: Pure ARIMA series as dependent
+-   [6 Example 2: Autocorrelated error](#example-2-autocorrelated-error)
+-   [7 Example 3: Pure ARIMA series as dependent
     variable](#example-3-pure-arima-series-as-dependent-variable)
 
 # 1 Overview
@@ -73,6 +75,39 @@ library(forecast)
     ##   as.zoo.data.frame zoo
 
 ``` r
+library(tidyverse)
+```
+
+    ## Warning: package 'tidyverse' was built under R version 4.0.3
+
+    ## -- Attaching packages --------------------------------------- tidyverse 1.3.0 --
+
+    ## v ggplot2 3.3.5     v purrr   0.3.4
+    ## v tibble  3.0.6     v dplyr   1.0.3
+    ## v tidyr   1.1.2     v stringr 1.4.0
+    ## v readr   1.4.0     v forcats 0.5.1
+
+    ## Warning: package 'ggplot2' was built under R version 4.0.5
+
+    ## Warning: package 'tibble' was built under R version 4.0.3
+
+    ## Warning: package 'tidyr' was built under R version 4.0.3
+
+    ## Warning: package 'readr' was built under R version 4.0.3
+
+    ## Warning: package 'purrr' was built under R version 4.0.3
+
+    ## Warning: package 'dplyr' was built under R version 4.0.3
+
+    ## Warning: package 'stringr' was built under R version 4.0.3
+
+    ## Warning: package 'forcats' was built under R version 4.0.3
+
+    ## -- Conflicts ------------------------------------------ tidyverse_conflicts() --
+    ## x dplyr::filter() masks stats::filter()
+    ## x dplyr::lag()    masks stats::lag()
+
+``` r
 par(mfrow = c(1,3))
 
 layout.matrix <- matrix(c(1, 2, 1, 3), nrow = 2, ncol = 2)
@@ -83,6 +118,38 @@ layout(mat = layout.matrix)
 # 3 Functions
 
 ``` r
+data_with_white_noise_error <- function(iterations = 20, 
+                                        n = 50){
+  # Create a dataframe of simulated X and Y data, for a given sample size.
+  # Each iteration is a single sample of size n for the given parameters.  
+  # We want several samples for each set of parameters. 
+  # 
+  # Args:
+  #   - iterations: number of datasets to create 
+  # 
+  # Returns: 
+  #   - df: dataframe with columns x and y
+  
+  slope <- .05 
+  
+  white_noise_residuals <- rnorm(n * iterations)
+  x <- rep(seq(n), iterations)
+  y <- slope * x + white_noise_residuals
+    
+  sample_id <- rep(seq(1:iterations), each = n)
+    
+  
+  df <- data.frame(sample_id, x , y)
+  
+  return(df)
+  
+}
+
+
+
+
+
+
 get_slope_line_vector_from_arima <- function(arima_model_fitted){
   # Args: 
   # - arima_model_fitted: Fitted ARIMA model, such as the models returned 
@@ -112,7 +179,45 @@ get_slope_line_vector_from_arima <- function(arima_model_fitted){
 }
 ```
 
-# 4 Example 1: White noise error (base case)
+# 4 Data generation
+
+Let’s visualize what these series look like, for a given n value.
+
+## 4.1 White noise error
+
+``` r
+seed <- 2022
+set.seed(seed)
+
+df <- data_with_white_noise_error(iterations = 20)
+
+df %>% 
+  ggplot(aes(x = x, y = y, group = sample_id)) + 
+  geom_line(alpha=.5) + 
+  facet_wrap(~sample_id) + 
+  theme_minimal()
+```
+
+![](2022-03-08_newey-west-heteroskedasticity-and-autocorrelation-robust-errors_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
+
+Now let’s collect several different sample sizes into dataframes.
+
+``` r
+# df_white_noise <- multiple_n_white_noise_error(iterations = i, n_values = c(50, 100)
+
+
+# multiple_n_white_noise_error: 
+#   - for loops over n_values, calls data_with_white_noise_error()
+#   - collects all series, does group_by(n, iteration_num, ar_coef) %>% cur_group_id() 
+
+
+
+# df_arima_error <- data_with_arima_error(iterations = i, n = 50, ar_coeffecients = seq(0, .9, .2))
+
+# df_arima <- data_with_arima_response(iterations = i, n = 50, ar_coeffecients = seq(0, .9, .2))
+```
+
+# 5 Example 1: White noise error (base case)
 
 First set up the data.
 
@@ -141,7 +246,7 @@ acf(fit$residuals)
 pacf(fit$residuals)
 ```
 
-![](2022-03-08_newey-west-heteroskedasticity-and-autocorrelation-robust-errors_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
+![](2022-03-08_newey-west-heteroskedasticity-and-autocorrelation-robust-errors_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
 
 Model output, using standard and Newey-West HAC errors:
 
@@ -155,32 +260,32 @@ summary(fit) # standard estimates
     ## 
     ## Residuals:
     ##      Min       1Q   Median       3Q      Max 
-    ## -2.33544 -0.73963  0.06635  0.70760  2.75413 
+    ## -3.05902 -0.70452  0.06119  0.74459  2.80218 
     ## 
     ## Coefficients:
     ##             Estimate Std. Error t value Pr(>|t|)    
-    ## (Intercept) -0.61276    0.29923  -2.048   0.0461 *  
-    ## x            0.05600    0.01021   5.483 1.53e-06 ***
+    ## (Intercept)  0.35407    0.33548   1.055 0.296527    
+    ## x            0.04304    0.01145   3.759 0.000463 ***
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
-    ## Residual standard error: 1.042 on 48 degrees of freedom
-    ## Multiple R-squared:  0.3851, Adjusted R-squared:  0.3723 
-    ## F-statistic: 30.07 on 1 and 48 DF,  p-value: 1.527e-06
+    ## Residual standard error: 1.168 on 48 degrees of freedom
+    ## Multiple R-squared:  0.2274, Adjusted R-squared:  0.2113 
+    ## F-statistic: 14.13 on 1 and 48 DF,  p-value: 0.0004626
 
 ``` r
 coeftest(fit, vcov = NeweyWest(fit, verbose = T))
 ```
 
     ## 
-    ## Lag truncation parameter chosen: 8
+    ## Lag truncation parameter chosen: 1
 
     ## 
     ## t test of coefficients:
     ## 
-    ##               Estimate Std. Error t value  Pr(>|t|)    
-    ## (Intercept) -0.6127589  0.1296910 -4.7248 2.044e-05 ***
-    ## x            0.0559995  0.0042046 13.3186 < 2.2e-16 ***
+    ##             Estimate Std. Error t value  Pr(>|t|)    
+    ## (Intercept) 0.354065   0.322398  1.0982 0.2775852    
+    ## x           0.043042   0.010292  4.1820 0.0001219 ***
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
@@ -199,7 +304,7 @@ acf(fit_arima$residuals)
 pacf(fit_arima$residuals)
 ```
 
-![](2022-03-08_newey-west-heteroskedasticity-and-autocorrelation-robust-errors_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+![](2022-03-08_newey-west-heteroskedasticity-and-autocorrelation-robust-errors_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
 
 ARIMA model output:
 
@@ -211,20 +316,20 @@ summary(fit_arima)
     ## Regression with ARIMA(0,0,0) errors 
     ## 
     ## Coefficients:
-    ##       intercept   xreg
-    ##         -0.6128  0.056
-    ## s.e.     0.2932  0.010
+    ##         xreg
+    ##       0.0536
+    ## s.e.  0.0056
     ## 
-    ## sigma^2 = 1.086:  log likelihood = -71.99
-    ## AIC=149.98   AICc=150.5   BIC=155.71
+    ## sigma^2 = 1.368:  log likelihood = -78.28
+    ## AIC=160.56   AICc=160.81   BIC=164.38
     ## 
     ## Training set error measures:
-    ##                        ME     RMSE       MAE      MPE    MAPE      MASE
-    ## Training set 5.224156e-14 1.021065 0.8298999 91.17292 124.853 0.6877414
-    ##                     ACF1
-    ## Training set -0.09153191
+    ##                      ME     RMSE       MAE       MPE     MAPE      MASE
+    ## Training set 0.08588708 1.157955 0.9312607 -31.03914 104.8873 0.7075574
+    ##                      ACF1
+    ## Training set -0.006382735
 
-# 5 Example 2: Autocorrelated error
+# 6 Example 2: Autocorrelated error
 
 In cases where non-arima fit gives almost same estimate as arima fit,
 but p-value of t-test for coefficient is far from significant, I would
@@ -266,7 +371,7 @@ acf(fit$residuals)
 pacf(fit$residuals)
 ```
 
-![](2022-03-08_newey-west-heteroskedasticity-and-autocorrelation-robust-errors_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
+![](2022-03-08_newey-west-heteroskedasticity-and-autocorrelation-robust-errors_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
 
 Model output, using standard and Newey-West HAC errors:
 
@@ -342,7 +447,7 @@ acf(fit_arima$residuals)
 pacf(fit_arima$residuals)
 ```
 
-![](2022-03-08_newey-west-heteroskedasticity-and-autocorrelation-robust-errors_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+![](2022-03-08_newey-west-heteroskedasticity-and-autocorrelation-robust-errors_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
 
 In this specific example, where `seed =` 2, we can see that the OLS fit
 and the (OLS + HAC) fit find the estimate a slope value close to the
@@ -353,7 +458,7 @@ significant.
 On the other hand, the ARIMA fit includes the slope, and the estimate is
 relatively close to the true value.
 
-# 6 Example 3: Pure ARIMA series as dependent variable
+# 7 Example 3: Pure ARIMA series as dependent variable
 
 First set up the data.
 
@@ -383,7 +488,7 @@ acf(fit$residuals)
 pacf(fit$residuals)
 ```
 
-![](2022-03-08_newey-west-heteroskedasticity-and-autocorrelation-robust-errors_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
+![](2022-03-08_newey-west-heteroskedasticity-and-autocorrelation-robust-errors_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
 
 Model output, using standard and Newey-West HAC errors:
 
@@ -457,4 +562,4 @@ acf(fit_arima$residuals)
 pacf(fit_arima$residuals)
 ```
 
-![](2022-03-08_newey-west-heteroskedasticity-and-autocorrelation-robust-errors_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
+![](2022-03-08_newey-west-heteroskedasticity-and-autocorrelation-robust-errors_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
