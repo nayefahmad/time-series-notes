@@ -52,6 +52,7 @@ data_with_white_noise_error <- function(iterations = 20,
   # 
   # Args:
   #   - iterations: number of datasets to create 
+  #   - n: sample size of each dataset 
   # 
   # Returns: 
   #   - df: dataframe with columns x and y
@@ -64,16 +65,11 @@ data_with_white_noise_error <- function(iterations = 20,
     
   sample_id <- rep(seq(1:iterations), each = n)
     
-  
   df <- data.frame(sample_id, x , y)
   
   return(df)
   
 }
-
-
-
-
 
 
 get_slope_line_vector_from_arima <- function(arima_model_fitted){
