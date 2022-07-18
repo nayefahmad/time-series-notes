@@ -18,3 +18,4 @@ Notes on time series and forecasting methods
 2. [Croston's method for forecasting intermittent demand](https://github.com/nayefahmad/time-series-notes/blob/main/src/2022-02-18_crostons-method-for-forecasting-intermittent-demand.ipynb)
 3. [Demonstrating that t-tests should not be used for time series data](https://github.com/nayefahmad/time-series-notes/blob/main/src/2022-03-04_inadequacy-of-t-tests-for-time-series-data.md)
 4. [Modeling autocorrelations: Newey-West HAC and ARIMA models](https://github.com/nayefahmad/time-series-notes/blob/main/src/2022-03-08_newey-west-heteroskedasticity-and-autocorrelation-robust-errors.md)
+4. [Trend-stationary versus difference-stationary time series](https://github.com/nayefahmad/time-series-notes/blob/main/src/2022-07-18_trend-stationary-versus-difference-stationary-time-series.md)

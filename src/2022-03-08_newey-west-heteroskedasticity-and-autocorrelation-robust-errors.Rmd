@@ -19,10 +19,11 @@ When there is autocorrelation of residuals, this means that your model is leavin
 
 In this file, we explore two ways to get your model to "work harder" and account for autocorrelation. The first is to use OLS as usual, then correct the estimate of the covariance matrix of the parameters. The second is to directly model autocorrelation using an ARIMA model. 
 
-**References:** 
+## References:
 
 - [Cross Validated - OLS regression with Newey-West error term](https://stats.stackexchange.com/a/254596/56828). This includes a simulation of autocorrelated residuals, and compares ordinary OLS vs HAC inferences. 
 - [Cross Validated - two ways of dealing with the problem of autocorrelated errors](https://stats.stackexchange.com/a/181297/56828). This argues that the ARIMA approach is better than using OLS + HAC errors. 
+- [Chapter 8 and 9 of Principles of Econometrics with R](https://bookdown.org/ccolonescu/RPoE4/heteroskedasticity.html#heteroskedasticity-consistent-standard-errors). Uses the function `car::hccm()` and the Newey-West HAC approach in `{sandwich}`
 
 
 # Libraries 

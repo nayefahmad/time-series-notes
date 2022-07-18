@@ -4,6 +4,7 @@ Nayef Ahmad
 2022-03-08
 
 -   [1 Overview](#overview)
+    -   [1.1 References:](#references)
 -   [2 Libraries](#libraries)
 -   [3 Functions](#functions)
 -   [4 Data generation](#data-generation)
@@ -28,7 +29,7 @@ account for autocorrelation. The first is to use OLS as usual, then
 correct the estimate of the covariance matrix of the parameters. The
 second is to directly model autocorrelation using an ARIMA model.
 
-**References:**
+## 1.1 References:
 
 -   [Cross Validated - OLS regression with Newey-West error
     term](https://stats.stackexchange.com/a/254596/56828). This includes
@@ -38,6 +39,10 @@ second is to directly model autocorrelation using an ARIMA model.
     autocorrelated
     errors](https://stats.stackexchange.com/a/181297/56828). This argues
     that the ARIMA approach is better than using OLS + HAC errors.
+-   [Chapter 8 and 9 of Principles of Econometrics with
+    R](https://bookdown.org/ccolonescu/RPoE4/heteroskedasticity.html#heteroskedasticity-consistent-standard-errors).
+    Uses the function `car::hccm()` and the Newey-West HAC approach in
+    `{sandwich}`
 
 # 2 Libraries
 
@@ -126,6 +131,7 @@ data_with_white_noise_error <- function(iterations = 20,
   # 
   # Args:
   #   - iterations: number of datasets to create 
+  #   - n: sample size of each dataset 
   # 
   # Returns: 
   #   - df: dataframe with columns x and y
@@ -138,16 +144,11 @@ data_with_white_noise_error <- function(iterations = 20,
     
   sample_id <- rep(seq(1:iterations), each = n)
     
-  
   df <- data.frame(sample_id, x , y)
   
   return(df)
   
 }
-
-
-
-
 
 
 get_slope_line_vector_from_arima <- function(arima_model_fitted){
