@@ -1,0 +1,41 @@
+---
+title: "Trend-stationary vs difference-stationary time series"
+author: "Nayef Ahmad"
+date: "2022-07-18" 
+output: 
+   github_document: 
+     toc: true
+     number_sections: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Overview 
+
+
+# Libraries
+```{r}
+library(forecast)
+
+```
+
+
+# Example 
+```{r}
+set.seed(2021)
+
+series_length <- 25
+ar_coefficient <- .6
+
+y <- arima.sim(series_length, 
+               model = list(ar = ar_coefficient))
+x <- 1:series_length
+
+fit <- lm(y~x)
+
+plot(x, y)
+abline(fit, col = "blue")
+
+```
