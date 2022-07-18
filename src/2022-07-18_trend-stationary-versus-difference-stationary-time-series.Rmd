@@ -52,10 +52,10 @@ ar_coefficient <- .6
 
 y <- arima.sim(series_length, 
                model = list(ar = ar_coefficient))
-x <- 1:series_length
-plot(x, y)
+time <- 1:series_length
+plot(time, y, type = "l", lwd = 2, main="Some time series data")
 
-fit <- lm(y~x)
+fit <- lm(y~time)
 abline(fit, col = "blue")
 
 ```
