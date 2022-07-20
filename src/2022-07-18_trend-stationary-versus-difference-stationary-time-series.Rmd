@@ -29,6 +29,16 @@ However, this is not the only model that can account for this data. At least one
 
 This model says that there is no systematic trend. Instead, there is a systematic *dependence structure* across values of the series. 
 
+What if both these models (the trend + white noise and the AR model) seem to account for the data pretty well? Then we should keep an open mind and not be too confident in either one of them. 
+
+Here's an analogy: In optimization theory, there are three classes of problems: 
+1) one unique solution 
+2) no solutions 
+3) infinite solutions
+
+This is somewhat analogous to statistical models: the model you specified could be the unique correct model (great!). Or it might be completely inappropriate; or it might be one of many other possible models that could account for the data. In the latter two cases, don't take your model's estimates too seriously.
+
+
 
 ## References
 1. Nelson & Kang, *Pitfalls in the use of time as an explanatory variable in regression*, 1984. 
