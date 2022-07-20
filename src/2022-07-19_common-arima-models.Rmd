@@ -17,3 +17,16 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## References 
 - [Robert Nau (Duke University) lecture notes](https://people.duke.edu/~rnau/411arim.htm)
+- [Free Range Stats blog post](http://freerangestats.info/blog/2015/11/21/arima-sims)
+
+# Libraries 
+
+```{r}
+library(forecast)
+```
+
+
+```{r}
+?arima.sim
+```
+
