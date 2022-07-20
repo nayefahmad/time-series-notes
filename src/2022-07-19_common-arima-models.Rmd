@@ -1,0 +1,19 @@
+---
+title: "Common ARIMA models"
+author: "Nayef"
+date: "7/19/2022"
+output: 
+   github_document: 
+     toc: true
+     number_sections: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Overview 
+
+
+## References 
+- [Robert Nau (Duke University) lecture notes](https://people.duke.edu/~rnau/411arim.htm)

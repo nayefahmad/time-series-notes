@@ -18,7 +18,7 @@ It's commonly known that violation of the independence assumption is a problem f
 
 - todo: show that the Type 1 error inflation is worse when the AR coefficient is higher. 
 
-Reference: 
+## Reference: 
 
 - [Speegle & Clair, Section 8.5.4](https://mathstat.slu.edu/~speegle/_book/HTCI.html)
 
