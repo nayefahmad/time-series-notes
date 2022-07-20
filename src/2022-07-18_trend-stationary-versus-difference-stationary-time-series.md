@@ -36,6 +36,19 @@ least one other model is worth considering:
 This model says that there is no systematic trend. Instead, there is a
 systematic *dependence structure* across values of the series.
 
+What if both these models (the trend + white noise and the AR model)
+seem to account for the data pretty well? Then we should keep an open
+mind and not be too confident in either one of them.
+
+Here’s an analogy: In optimization theory, there are three classes of
+problems: 1) one unique solution 2) no solutions 3) infinite solutions
+
+This is somewhat analogous to statistical models: the model you
+specified could be the unique correct model (great!). Or it might be
+completely inappropriate; or it might be one of many other possible
+models that could account for the data. In the latter two cases, don’t
+take your model’s estimates too seriously.
+
 ## 1.1 References
 
 1.  Nelson & Kang, *Pitfalls in the use of time as an explanatory
@@ -66,14 +79,22 @@ ar_coefficient <- .6
 
 y <- arima.sim(series_length, 
                model = list(ar = ar_coefficient))
-x <- 1:series_length
-plot(x, y)
+time <- 1:series_length
+plot(time, y, type = "l", lwd = 2, main="Some time series data")
 
-fit <- lm(y~x)
+fit <- lm(y~time)
 abline(fit, col = "blue")
 ```
 
 ![](2022-07-18_trend-stationary-versus-difference-stationary-time-series_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
+
+``` r
+par(mfrow = c(1, 2))
+acf(y, main = "ACF")
+pacf(y, main = "PACF")
+```
+
+![](2022-07-18_trend-stationary-versus-difference-stationary-time-series_files/figure-gfm/unnamed-chunk-2-2.png)<!-- -->
 
 Now let’s see if we can recover those parameters:
 

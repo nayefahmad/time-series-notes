@@ -50,6 +50,11 @@ This is somewhat analogous to statistical models: the model you specified could 
 ```{r}
 library(forecast)
 
+layout.matrix <- matrix(c(1, 2, 1, 3), nrow = 2, ncol = 2)
+layout(mat = layout.matrix)
+
+# if (dev.cur() > 1) {dev.off()}  # used to turn off layout settings 
+
 ```
 
 
@@ -63,20 +68,36 @@ ar_coefficient <- .6
 y <- arima.sim(series_length, 
                model = list(ar = ar_coefficient))
 time <- 1:series_length
-plot(time, y, type = "l", lwd = 2, main="Some time series data")
+plot(time, y, type = "l", lwd = 2, main = "Some time series data")
 
 fit <- lm(y~time)
 abline(fit, col = "blue")
 
+acf(y, main = "ACF")
+pacf(y, main = "PACF")
+
 ```
 
 
-Now let's see if we can recover those parameters: 
+## Note on those blue lines in the ACF and PACF
+
+Focus on the ACF plot here. 
 
 ```{r}
-auto.arima(y)
+set.seed(2021)
 
+series_length <- 25
+ma_coefficient <- .6
+
+y <- arima.sim(series_length, 
+               model = list(ma = ma_coefficient))
+time <- 1:series_length
+plot(time, y, type = "l", lwd = 2, main = "Some time series data")
+
+fit <- lm(y~time)
+abline(fit, col = "blue")
+
+acf(y, main = "ACF")
+pacf(y, main = "PACF")
 ```
-
-
 
