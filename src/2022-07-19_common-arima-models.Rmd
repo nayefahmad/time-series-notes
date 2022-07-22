@@ -27,6 +27,18 @@ library(forecast)
 
 
 ```{r}
-?arima.sim
+arima.sim(25, model = list(ar = .5))
+
+
+
+sim_n_reps <- function(reps, n, ar_coeffs){
+  replicate(reps, 
+            arima.sim(n, model = list(ar = ar_coeffs)))
+} 
+
+
+# data <- sim_n_reps()
+# plot(data)
+
 ```
 

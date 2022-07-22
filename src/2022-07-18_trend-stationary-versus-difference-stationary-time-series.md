@@ -7,6 +7,10 @@ Nayef Ahmad
     -   [1.1 References](#references)
 -   [2 Libraries](#libraries)
 -   [3 Example](#example)
+    -   [3.1 Note on those blue lines in the ACF and
+        PACF](#note-on-those-blue-lines-in-the-acf-and-pacf)
+    -   [3.2 Recreating Table 1 from Nelson &
+        Kang (1984)](#recreating-table-1-from-nelson-kang-1984)
 
 # 1 Overview
 
@@ -69,6 +73,13 @@ library(forecast)
     ##   method            from
     ##   as.zoo.data.frame zoo
 
+``` r
+layout.matrix <- matrix(c(1, 2, 1, 3), nrow = 2, ncol = 2)
+layout(mat = layout.matrix)
+
+# if (dev.cur() > 1) {dev.off()}  # used to turn off layout settings 
+```
+
 # 3 Example
 
 ``` r
@@ -80,7 +91,7 @@ ar_coefficient <- .6
 y <- arima.sim(series_length, 
                model = list(ar = ar_coefficient))
 time <- 1:series_length
-plot(time, y, type = "l", lwd = 2, main="Some time series data")
+plot(time, y, type = "l", lwd = 2, main = "Some time series data")
 
 fit <- lm(y~time)
 abline(fit, col = "blue")
@@ -89,26 +100,52 @@ abline(fit, col = "blue")
 ![](2022-07-18_trend-stationary-versus-difference-stationary-time-series_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
 
 ``` r
-par(mfrow = c(1, 2))
 acf(y, main = "ACF")
-pacf(y, main = "PACF")
 ```
 
 ![](2022-07-18_trend-stationary-versus-difference-stationary-time-series_files/figure-gfm/unnamed-chunk-2-2.png)<!-- -->
 
-Now let’s see if we can recover those parameters:
-
 ``` r
-auto.arima(y)
+pacf(y, main = "PACF")
 ```
 
-    ## Series: y 
-    ## ARIMA(0,1,1) 
-    ## 
-    ## Coefficients:
-    ##           ma1
-    ##       -0.5262
-    ## s.e.   0.1605
-    ## 
-    ## sigma^2 = 1.377:  log likelihood = -37.55
-    ## AIC=79.1   AICc=79.67   BIC=81.45
+![](2022-07-18_trend-stationary-versus-difference-stationary-time-series_files/figure-gfm/unnamed-chunk-2-3.png)<!-- -->
+
+## 3.1 Note on those blue lines in the ACF and PACF
+
+Focus on the ACF plot here.
+
+``` r
+set.seed(2021)
+
+series_length <- 25
+ma_coefficient <- .6
+
+y <- arima.sim(series_length, 
+               model = list(ma = ma_coefficient))
+time <- 1:series_length
+plot(time, y, type = "l", lwd = 2, main = "Some time series data")
+
+fit <- lm(y~time)
+abline(fit, col = "blue")
+```
+
+![](2022-07-18_trend-stationary-versus-difference-stationary-time-series_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
+
+``` r
+acf(y, main = "ACF")
+```
+
+![](2022-07-18_trend-stationary-versus-difference-stationary-time-series_files/figure-gfm/unnamed-chunk-3-2.png)<!-- -->
+
+``` r
+pacf(y, main = "PACF")
+```
+
+![](2022-07-18_trend-stationary-versus-difference-stationary-time-series_files/figure-gfm/unnamed-chunk-3-3.png)<!-- -->
+
+## 3.2 Recreating Table 1 from Nelson & Kang (1984)
+
+> As a result, the true null hypotheses ,B =a and a = 0 are rejected
+> with frequencies of 87% and 80%, respectively, at a nominal 5%
+> significance level.

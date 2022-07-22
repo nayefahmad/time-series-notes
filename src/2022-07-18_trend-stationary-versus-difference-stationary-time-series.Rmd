@@ -101,3 +101,14 @@ acf(y, main = "ACF")
 pacf(y, main = "PACF")
 ```
 
+
+
+## Recreating Table 1 from Nelson & Kang (1984)
+
+> As a result, the true null hypotheses ,B =a and a = 0 are rejected with frequencies of 87% and 80%, respectively, at a nominal 5% significance
+level.
+
+```{r}
+
+```
+
