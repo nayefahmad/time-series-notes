@@ -61,6 +61,9 @@ take your model’s estimates too seriously.
 2.  Durlauf & Phillips, *Trends versus random walks in time series
     analysis*, 1988.
 
+3.  Nelson & Plosser, *Trends and random walks in macroeconomic time
+    series*, 1982
+
 # 2 Libraries
 
 ``` r
