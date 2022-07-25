@@ -1,95 +1,25 @@
----
-title: "Common ARIMA models"
-author: "Nayef"
-date: "7/19/2022"
-output: 
-   github_document: 
-     toc: true
-     number_sections: true
----
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
-
-# Overview 
-
-
-## References 
-- [Robert Nau (Duke University) lecture notes](https://people.duke.edu/~rnau/411arim.htm)
-- [Free Range Stats blog post](http://freerangestats.info/blog/2015/11/21/arima-sims)
-
-# Libraries 
-
-```{r}
-library(forecast)
-```
-
-
-```{r}
-arima.sim(25, model = list(ar = .5))
-
-
-
-sim_n_reps <- function(reps, n, ar_coeffs){
-  replicate(reps, 
-            arima.sim(n, model = list(ar = ar_coeffs)))
-} 
-
-
-x <- sim_n_reps(reps = 5, n = 25, ar_coeffs = .5)
-x2 <- sim_n_reps(reps = 5, n = 25, ar_coeffs = c(.5, .1))
-
-
-# Use case: 
-# data <- sim_n_reps()
-# plot(data)
-
-```
-
-
-
-# Inspecting `arima.sim()`
-
-1. Condition for stationarity of AR model: $\phi(B) = 0$ must have roots outside of the unit circle. 
-
-```{r}
-
-arima_sim2 <- function (model, 
-                        n, 
-                        rand.gen = rnorm, 
-                        innov = rand.gen(n, ...), 
-                        n.start = NA, 
-                        start.innov = rand.gen(n.start, ...),
-                        ...) 
+arima_sim2 <- function (model, n, rand.gen = rnorm, innov = rand.gen(n, ...), 
+               n.start = NA, start.innov = rand.gen(n.start, ...), ...) 
 {
-  
   if (!is.list(model)) 
     stop("'model' must be list")
   
   if (n <= 0L) 
     stop("'n' must be strictly positive")
   
-  
-  # p is the order of the AR part of the model
   p <- length(model$ar)
   if (p) {
     minroots <- min(Mod(polyroot(c(1, -model$ar))))
     if (minroots <= 1) 
-      # To ensure stationarity, the roots of the polynomial must be 
-      #   outside the unit circle. See note 1 above. 
       stop("'ar' part of model is not stationary")
   }
-  
-  # q is the order of the MA part of the model
   q <- length(model$ma)
   if (is.na(n.start)) 
     n.start <- p + q + ifelse(p > 0, ceiling(6/log(minroots)), 
                               0)
   if (n.start < p + q) 
     stop("burn-in 'n.start' must be as long as 'ar + ma'")
-  
-  # d is the order of differencing
   d <- 0
   if (!is.null(ord <- model$order)) {
     if (length(ord) != 3L) 
@@ -106,26 +36,22 @@ arima_sim2 <- function (model,
     stop(sprintf(ngettext(n.start, "'start.innov' is too short: need %d point", 
                           "'start.innov' is too short: need %d points"), 
                  n.start), domain = NA)
-  
   x <- ts(c(start.innov[seq_len(n.start)], innov[1L:n]), start = 1 - 
             n.start)
-  
   if (length(model$ma)) {
     x <- filter(x, c(1, model$ma), sides = 1L)
     x[seq_along(model$ma)] <- 0
   }
-  
   if (length(model$ar)) 
     x <- filter(x, model$ar, method = "recursive")
-  
   if (n.start > 0) 
     x <- x[-(seq_len(n.start))]
-  
   if (d > 0) 
     x <- diffinv(x, differences = d)
-  
   as.ts(x)
 }
 
-```
+
+arima_sim2(10, model = list(ar = .5))
+
 
