@@ -53,5 +53,6 @@ arima_sim2 <- function (model, n, rand.gen = rnorm, innov = rand.gen(n, ...),
 
 
 arima_sim2(10, model = list(ar = .5))
+arima_sim2(10, model = list(ar = .5), sd = 1)
 
 

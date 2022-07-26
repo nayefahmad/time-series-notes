@@ -17,7 +17,9 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## References 
 - [Robert Nau (Duke University) lecture notes](https://people.duke.edu/~rnau/411arim.htm)
-- [Free Range Stats blog post](http://freerangestats.info/blog/2015/11/21/arima-sims)
+- [Simulating ARIMA models - Free Range Stats blog post](http://freerangestats.info/blog/2015/11/21/arima-sims)
+- [Simulating ARIMA models - Sean vdM](https://seanvdm.co.za/post/tssim1/)
+
 
 # Libraries 
 
@@ -54,6 +56,8 @@ x2 <- sim_n_reps(reps = 5, n = 25, ar_coeffs = c(.5, .1))
 1. Condition for stationarity of AR model: $\phi(B) = 0$ must have roots outside of the unit circle. 
 
 ```{r}
+?arima.sim
+
 
 arima_sim2 <- function (model, 
                         n, 
@@ -83,8 +87,12 @@ arima_sim2 <- function (model,
   
   # q is the order of the MA part of the model
   q <- length(model$ma)
+  
+  # n.start is the length of the burn-in period. If not set by user, 
+  # a sensible value is computed: 
   if (is.na(n.start)) 
-    n.start <- p + q + ifelse(p > 0, ceiling(6/log(minroots)), 
+    n.start <- p + q + ifelse(p > 0,
+                              ceiling(6/log(minroots)), 
                               0)
   if (n.start < p + q) 
     stop("burn-in 'n.start' must be as long as 'ar + ma'")
@@ -93,19 +101,25 @@ arima_sim2 <- function (model,
   d <- 0
   if (!is.null(ord <- model$order)) {
     if (length(ord) != 3L) 
-      stop("'model$order' must be of length 3")
+      stop("'model$order' must be of length 3")  # must specify p, d, and q
     if (p != ord[1L]) 
       stop("inconsistent specification of 'ar' order")
     if (q != ord[3L]) 
       stop("inconsistent specification of 'ma' order")
+    
     d <- ord[2L]
     if (d != round(d) || d < 0) 
       stop("number of differences must be a positive integer")
   }
+  
+  
   if (!missing(start.innov) && length(start.innov) < n.start) 
-    stop(sprintf(ngettext(n.start, "'start.innov' is too short: need %d point", 
+    stop(sprintf(ngettext(n.start, 
+                          "'start.innov' is too short: need %d point", 
                           "'start.innov' is too short: need %d points"), 
-                 n.start), domain = NA)
+                 n.start),
+         domain = NA)
+  
   
   x <- ts(c(start.innov[seq_len(n.start)], innov[1L:n]), start = 1 - 
             n.start)
