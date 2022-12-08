@@ -1,4 +1,4 @@
-# time-series-notes
+# Time series notes 
 Notes on time series and forecasting methods 
 
 ## Contents 
