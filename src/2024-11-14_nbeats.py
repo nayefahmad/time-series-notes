@@ -1,3 +1,11 @@
+"""
+# NBEATS demo 
+
+References: 
+- [nixtla NeuralForecast docs on nbeats]()
+- [blog post on NHITS and NBEATS]()
+"""
+
 import pandas as pd
 import matplotlib.pyplot as plt
 
