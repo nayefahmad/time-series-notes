@@ -4,6 +4,8 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from scipy.optimize import minimize
 
+print('test')
+
 # Simulate an MA(1) process step by step to visualize residual propagation
 np.random.seed(1)
 n_steps = 20
